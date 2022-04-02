@@ -17,7 +17,7 @@ import lombok.Data;
  * @author manos
  */
 @Data
-public class NXMLParser {
+public class Parser {
 
     public void readFileExampleInstruction() throws IOException {
         //testing

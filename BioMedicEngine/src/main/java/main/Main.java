@@ -6,7 +6,7 @@
 package main;
 
 import java.io.IOException;
-import nxmlParsing.NXMLParser;
+import nxmlParsing.Parser;
 
 /**
  *
@@ -15,6 +15,6 @@ import nxmlParsing.NXMLParser;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        new NXMLParser().readFileExampleInstruction();
+        new Parser().readFileExampleInstruction();
     }
 }
