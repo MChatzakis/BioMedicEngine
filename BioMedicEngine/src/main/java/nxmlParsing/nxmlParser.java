@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xmlParsing;
+package nxmlParsing;
 
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.File;
@@ -17,10 +17,10 @@ import lombok.Data;
  * @author manos
  */
 @Data
-public class xmlParser {
+public class NXMLParser {
 
     public void readFileExampleInstruction() throws IOException {
-        File example = new File("C:\\dataset\\clinic\\3536594.nxml");
+        File example = new File("./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml");
         NXMLFileReader xmlFile = new NXMLFileReader(example);
         String pmcid = xmlFile.getPMCID();
         String title = xmlFile.getTitle();

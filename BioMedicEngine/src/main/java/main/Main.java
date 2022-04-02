@@ -5,13 +5,16 @@
  */
 package main;
 
+import java.io.IOException;
+import nxmlParsing.NXMLParser;
+
 /**
  *
  * @author manos
  */
 public class Main {
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
+        new NXMLParser().readFileExampleInstruction();
     }
 }
