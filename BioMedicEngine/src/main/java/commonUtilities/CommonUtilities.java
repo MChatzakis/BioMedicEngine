@@ -5,10 +5,14 @@
  */
 package commonUtilities;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author manos
  */
 public class CommonUtilities {
-    
+    public static ArrayList<String> getFilesOfDirectory(String dir){
+        return null;
+    }
 }

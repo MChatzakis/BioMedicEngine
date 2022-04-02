@@ -3,9 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nxmlParsing;
+package xmlParsing;
 
 import gr.uoc.csd.hy463.NXMLFileReader;
+import gr.uoc.csd.hy463.Topic;
+import gr.uoc.csd.hy463.TopicsReader;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,9 +20,9 @@ import lombok.Data;
  * @author manos
  */
 @Data
-public class NXMLParser {
+public class XMLParser {
 
-    public void readFileExampleInstruction() throws IOException {
+    public void readNXMLFileExampleInstruction() throws IOException {
         //testing
         File example = new File("./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml");
         NXMLFileReader xmlFile = new NXMLFileReader(example);
@@ -41,4 +44,17 @@ public class NXMLParser {
         System.out.println("- Authors: " + authors);
         System.out.println("- Categories: " + categories);
     }
+
+    public void readTopicsXMLFile() throws Exception {
+        ArrayList<Topic> topics = TopicsReader.readTopics("C:\\dataset\\ topics.xml");
+        for (Topic topic : topics) {
+            System.out.println(topic.getNumber());
+            System.out.println(topic.getType());
+            System.out.println(topic.getSummary());
+            System.out.println(topic.getDescription());
+            System.out.println("---------");
+        }
+    }
+
+        
 }
