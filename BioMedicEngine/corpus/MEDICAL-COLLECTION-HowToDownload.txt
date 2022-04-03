@@ -1,0 +1,18 @@
+
+Σε αύξουσα σειρά κατά μέγεθος:
+
+A/ MiniCollection: for initial testing: ~1MB
+
+B/ MedicalCollection.rar:  ~1 GB
+
+Την Α και τη Β μπορείτε να την κατεβάσετε από τη δνση:
+
+https://drive.google.com/drive/folders/16O3bqQYI2JQ47xXplvN_itVPvOzdcCnZ?usp=sharing
+
+C/ Μπορείτε να κατεβάσετε ολόκληρη την συλλογή από τα παρακάτω 4 links: 
+(733,138 articles, each of the 4 files is around 2 GB in size)
+http://ceb.nlm.nih.gov/~simpsonmatt/pmc-text-00.tar.gz
+http://ceb.nlm.nih.gov/~simpsonmatt/pmc-text-01.tar.gz
+http://ceb.nlm.nih.gov/~simpsonmatt/pmc-text-02.tar.gz
+http://ceb.nlm.nih.gov/~simpsonmatt/pmc-text-03.tar.gz
+
