@@ -15,7 +15,6 @@ public class IndexProcess {
         //B1
         BioMedicIndexer index = new BioMedicIndexer();
         
-
         String englishStopWordsFile = "./stopwords/stopwordsEn.txt";
         index.loadStopWords(englishStopWordsFile);
 
@@ -25,7 +24,10 @@ public class IndexProcess {
         System.out.println("Total stopwords: " + index.getStopWords().size());
         System.out.println("Stop words of the indexer are: " + index.getStopWords());
         
-        String singleNXMLfile = "./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml";
-        index.readNXMLFile(singleNXMLfile);
+        //String singleNXMLfile = "./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml";
+        //index.readNXMLFile(singleNXMLfile);
+        
+        index.processNXMLDirectory("C://MedicalCollection");
+        
     }
 }
