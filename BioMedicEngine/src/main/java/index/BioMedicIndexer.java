@@ -3,28 +3,44 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xmlParsing;
+package index;
 
+import commonUtilities.CommonUtilities;
 import gr.uoc.csd.hy463.NXMLFileReader;
-import gr.uoc.csd.hy463.Topic;
-import gr.uoc.csd.hy463.TopicsReader;
-
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import lombok.Data;
 
 /**
  *
- * @author manos
+ * @author Manos Chatzakis
  */
 @Data
-public class XMLParser {
+public class BioMedicIndexer {
 
-    public void readNXMLFileExampleInstruction() throws IOException {
-        //testing
-        File example = new File("./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml");
+    private ArrayList<String> stopWords;
+    private final String[] stopPoints = {".", ",", "(", ")"};
+
+    private void initialize() {
+        stopWords = new ArrayList<>();
+        stopWords.addAll(Arrays.asList(stopPoints));
+    }
+
+    public BioMedicIndexer() {
+        initialize();
+    }
+
+    public void loadStopWords(String stopWordsFilePath) throws FileNotFoundException {
+        ArrayList<String> fileStopWords = CommonUtilities.getFileContentsByLineUTF_8(stopWordsFilePath);
+        stopWords.addAll(fileStopWords);
+    }
+
+    public void readNXMLFile(String filepath) throws IOException {
+        File example = new File(filepath);
         NXMLFileReader xmlFile = new NXMLFileReader(example);
         String pmcid = xmlFile.getPMCID();
         String title = xmlFile.getTitle();
@@ -45,18 +61,4 @@ public class XMLParser {
         System.out.println("- Categories: " + categories);
     }
 
-    public void readTopicsXMLFile() throws Exception {
-        ArrayList<Topic> topics = TopicsReader.readTopics("C:\\dataset\\ topics.xml");
-        for (Topic topic : topics) {
-            System.out.println(topic.getNumber());
-            System.out.println(topic.getType());
-            System.out.println(topic.getSummary());
-            System.out.println(topic.getDescription());
-            System.out.println("---------");
-        }
-    }
-    
-    
-    
-        
 }
