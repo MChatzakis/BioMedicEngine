@@ -7,6 +7,7 @@ package index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 import lombok.Data;
 
 /**
@@ -16,21 +17,20 @@ import lombok.Data;
 @Data
 public class Term {
 
+    private int df;
     private String value;
-    private HashMap<String, Integer> tagOccurences;
 
-    public Term(String value) {
-        this.value = value;
-        tagOccurences = new HashMap<>();
-    }
+    private TreeMap<Integer, HashMap<String, Integer>> perDocumentTagOccurences;
 
-    public void initializeTagOccurences(String[] tags) {
+    private void initializeTagOccurencesOfDocument(String[] tags, int docID) {
+        HashMap<String, Integer> tagOccurences = perDocumentTagOccurences.get(docID);
         for (String tag : tags) {
             tagOccurences.put(tag, 0);
         }
     }
 
-    public void increaseOccurenceOfWordInTag(String tag) {
+    private void increaseOccurenceOfWordInTag(String tag, int docID) {
+        HashMap<String, Integer> tagOccurences = perDocumentTagOccurences.get(docID);
         if (tagOccurences.containsKey(tag)) {
             tagOccurences.put(tag, tagOccurences.get(tag) + 1);
         } else {
@@ -40,8 +40,29 @@ public class Term {
 
     }
 
+    public Term(String value) {
+        this.value = value;
+
+        df = 0;
+        perDocumentTagOccurences = new TreeMap<>();
+    }
+
+    public void addOccurence(String[] tags, String tag, int docID) {
+        if (!perDocumentTagOccurences.containsKey(docID)) {
+            df++;
+            perDocumentTagOccurences.put(docID, new HashMap<>());
+            initializeTagOccurencesOfDocument(tags, docID);
+        }
+
+        increaseOccurenceOfWordInTag(tag, docID);
+    }
+
     public String toString() {
-        String s = "{" + value + "} => " + tagOccurences.toString();
+        //String s = "{" + value + "} => TO" + tagOccurences.toString() + " - DIDs" + documentOccurences.toString() + " - DF: " + df;
+        String s;
+
+        s = "{" + value + "} => DF: " + df + " => " + perDocumentTagOccurences.toString();
+
         return s;
     }
 

@@ -23,7 +23,7 @@ import lombok.Data;
 public class XMLParser {
 
     public void readNXMLFileExampleInstruction() throws IOException {
-        //testing
+
         File example = new File("./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml");
         NXMLFileReader xmlFile = new NXMLFileReader(example);
         String pmcid = xmlFile.getPMCID();

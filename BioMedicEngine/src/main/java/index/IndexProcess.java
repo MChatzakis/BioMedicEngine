@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package index;
 
 /**
@@ -24,10 +19,7 @@ public class IndexProcess {
         System.out.println("Total stopwords: " + index.getStopWords().size());
         System.out.println("Stop words of the indexer are: " + index.getStopWords());
         
-        //String singleNXMLfile = "./sample/MiniCollection/MiniCollection/treatment/Topic_27/0/1936313.nxml";
-        //index.readNXMLFile(singleNXMLfile);
-        
+        //B2 & B3, stemming is also performed here
         index.processNXMLDirectory("C://MedicalCollection");
-        
     }
 }

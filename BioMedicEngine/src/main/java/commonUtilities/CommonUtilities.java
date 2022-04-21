@@ -37,8 +37,7 @@ public class CommonUtilities {
                 continue;
             }
 
-            String path = directory.relativize(file).toString();
-            String name = file.getFileName().toString();
+            String path = file.toAbsolutePath().toString();
 
             filepaths.add(path);
         }
@@ -65,6 +64,15 @@ public class CommonUtilities {
         }
 
         return lines;
+    }
+
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }
