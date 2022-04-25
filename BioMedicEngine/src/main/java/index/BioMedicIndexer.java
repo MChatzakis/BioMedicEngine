@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +36,8 @@ public class BioMedicIndexer {
 
     private TreeMap<String, Term> vocabulary;
     private TreeMap<Integer, Doc> documents;
+
+    private RandomAccessFile documentsRAF;
 
     private void initialize() {
         stopWords = new ArrayList<>();
@@ -130,7 +133,6 @@ public class BioMedicIndexer {
         for (String filepath : filepaths) {
             Doc doc = new Doc(documentCounter, filepath);
             documents.put(documentCounter++, doc);
-
             readNXMLFile(doc);
         }
 
@@ -143,11 +145,34 @@ public class BioMedicIndexer {
         return vocabulary;
     }
 
+    public void indexNXMLDirectory(String directoryBasePath) throws IOException {
+        //STEP 1. Create The Doc File
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);
+        int documentCounter = 0;
+        documentsRAF = new RandomAccessFile("collectionIndex/documentsFile.txt", "rw");
+        documentsRAF.seek(0);
+        for (String filepath : filepaths) {
+            Doc doc = new Doc(documentCounter, filepath);
+            
+            doc.setNorm(new File(filepath).length());
+            
+            documents.put(documentCounter, doc);
+            documentCounter++;
+
+            String line2write = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
+            documentsRAF.writeUTF(line2write);
+            doc.setDocFilePointer(documentsRAF.getFilePointer());
+        }
+        
+        
+
+    }
+
     public void readNXMLFile(Doc doc) throws IOException {
         File example = new File(doc.getPath());
         NXMLFileReader xmlFile = new NXMLFileReader(example);
 
-        doc.setNorm(example.length());
+        //doc.setNorm(example.length());
 
         //Step 1. Read the raw NXML file contents.
         //We care only for the following tags.

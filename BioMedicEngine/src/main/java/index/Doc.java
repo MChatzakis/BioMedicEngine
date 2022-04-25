@@ -17,12 +17,15 @@ public class Doc {
     private int id;
     private long norm;
     private String path;
-
+    
+    private long docFilePointer;
+    
     public Doc(int id, String path) {
         this.id = id;
         this.path = path;
 
         norm = 0;
+        docFilePointer = 0;
     }
 
     public String toString() {

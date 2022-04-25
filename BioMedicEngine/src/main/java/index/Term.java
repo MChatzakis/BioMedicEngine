@@ -21,7 +21,7 @@ public class Term {
     private String value;
 
     private TreeMap<Integer, HashMap<String, Integer>> perDocumentTagOccurences;
-
+    
     private void initializeTagOccurencesOfDocument(String[] tags, int docID) {
         HashMap<String, Integer> tagOccurences = perDocumentTagOccurences.get(docID);
         for (String tag : tags) {
@@ -58,7 +58,6 @@ public class Term {
     }
 
     public String toString() {
-        //String s = "{" + value + "} => TO" + tagOccurences.toString() + " - DIDs" + documentOccurences.toString() + " - DF: " + df;
         String s;
 
         s = "{" + value + "} => DF: " + df + " => " + perDocumentTagOccurences.toString();
