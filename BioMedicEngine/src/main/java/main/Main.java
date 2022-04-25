@@ -14,9 +14,9 @@ import java.io.IOException;
  */
 public class Main {
 
-    public static void createIndex() throws IOException{
+    public static void createIndex() throws IOException {
         BioMedicIndexer index = new BioMedicIndexer();
-        
+
         String englishStopWordsFile = "./stopwords/stopwordsEn.txt";
         index.loadStopWords(englishStopWordsFile);
 
@@ -25,12 +25,10 @@ public class Main {
 
         //System.out.println("Total stopwords: " + index.getStopWords().size());
         //System.out.println("Stop words of the indexer are: " + index.getStopWords());
-        
         index.processNXMLDirectory("C://MedicalCollection");
     }
-    
+
     public static void main(String[] args) throws Exception {
-       
         createIndex();
     }
 }

@@ -5,6 +5,8 @@
  */
 package index;
 
+import structures.Doc;
+import structures.Term;
 import commonUtilities.CommonUtilities;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.File;
@@ -163,8 +165,6 @@ public class BioMedicIndexer {
             documentsRAF.writeUTF(line2write);
             doc.setDocFilePointer(documentsRAF.getFilePointer());
         }
-        
-        
 
     }
 
