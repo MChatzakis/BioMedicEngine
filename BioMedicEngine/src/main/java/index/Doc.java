@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package structures;
+package index;
 
 import lombok.Data;
 
@@ -17,7 +17,6 @@ public class Doc {
     private int id;
     private long norm;
     private String path;
-    
     private long docFilePointer;
     
     public Doc(int id, String path) {
@@ -25,6 +24,7 @@ public class Doc {
         this.path = path;
 
         norm = 0;
+        docFilePointer = 0;
         docFilePointer = 0;
     }
 

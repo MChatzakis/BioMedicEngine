@@ -5,8 +5,6 @@
  */
 package index;
 
-import structures.Doc;
-import structures.Term;
 import commonUtilities.CommonUtilities;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.File;
@@ -32,21 +30,22 @@ import mitos.stemmer.Stemmer;
 @Data
 public class BioMedicIndexer {
 
+    private final int PARTIAL_INDEX_THRESHOLD = 20000;
+
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
     private final String[] tagNames = {"PMC ID", "Title", "Abstract", "Body", "Journal", "Publisher", "Authors", "Categories"};
 
     private TreeMap<String, Term> vocabulary;
-    private TreeMap<Integer, Doc> documents;
-
-    private RandomAccessFile documentsRAF;
+    private ArrayList<Doc> documents;
 
     private void initialize() {
         stopWords = new ArrayList<>();
         stopWords.addAll(Arrays.asList(stopPoints));
 
         vocabulary = new TreeMap<>();
-        documents = new TreeMap<>();
+        //documents = new TreeMap<>();
+        documents = new ArrayList<>();
         Stemmer.Initialize();
     }
 
@@ -71,7 +70,7 @@ public class BioMedicIndexer {
 
     }
 
-    private void addTermToMapAction(String currentWord, String currentTag, int docID) {
+    private void addTermToMapAction(String currentWord, String currentTag, int docID, int positionInTag) {
         Term currentTerm;
 
         if (!vocabulary.containsKey(currentWord)) {
@@ -81,41 +80,121 @@ public class BioMedicIndexer {
             currentTerm = vocabulary.get(currentWord);
         }
 
-        currentTerm.addOccurence(tagNames, currentTag, docID);
+        currentTerm.addOccurence(tagNames, currentTag, docID, positionInTag);
     }
 
     private void processRawContent(String content, String tag, int docID) {
 
-        //content = formatStopPoints(content);
+        int currentWordPosition = 0;
+
         String delimiter = "\t\n\r\f ";
         StringTokenizer tokenizer = new StringTokenizer(content, delimiter);
         while (tokenizer.hasMoreTokens()) {
             String currentWord = formatStopPoints(tokenizer.nextToken());
 
+            currentWordPosition++;
+
             if (stopWords.contains(currentWord) || currentWord.equals("")) {
                 continue;
             }
 
-            //now current word is not a stopWord, or a word containg stoppoints, thus we can add it in structure
-            addTermToMapAction(Stemmer.Stem(currentWord), tag, docID);
-            //addTermToMapAction(currentWord, tag, docID);
+            addTermToMapAction(Stemmer.Stem(currentWord), tag, docID, currentWordPosition - 1);
         }
     }
 
-    private void createVocabularyFile(String filepath) throws IOException {
-        FileWriter vocabWriter = new FileWriter(filepath);
-        for (Map.Entry<String, Term> entry : vocabulary.entrySet()) {
-            vocabWriter.write(entry.getValue().getValue() + " " + entry.getValue().getDf() + "\n");
+    private void calculateTFofTermsOfDocument(int docID) {
+        int maxOcc = 0;
+        for (Map.Entry<String, Term> cterm : vocabulary.entrySet()) {
+            Term term = cterm.getValue();
+            int termOcc = term.calculateOccurencesInDoc(docID);
+
+            if (termOcc >= maxOcc) {
+                maxOcc = termOcc;
+            }
+
         }
-        vocabWriter.close();
+
+        for (Map.Entry<String, Term> cterm : vocabulary.entrySet()) {
+            Term term = cterm.getValue();
+            term.calculateTFinDoc(docID, maxOcc);
+        }
     }
 
-    private void createDocumentsFile(String filepath) throws IOException {
-        FileWriter docWriter = new FileWriter(filepath);
-        for (Map.Entry<Integer, Doc> entry : documents.entrySet()) {
-            docWriter.write(entry.getValue().getId() + " " + entry.getValue().getPath() + " " + entry.getValue().getNorm() + "\n");
+    private void createPartialFiles(int partialFileCounter, String basePath, ArrayList<String> filenames) throws FileNotFoundException, IOException {
+        String filenameV = "vocab" + partialFileCounter + ".txt";
+        String filenameP = "post" + partialFileCounter + ".txt";
+
+        RandomAccessFile partialVocab = new RandomAccessFile(basePath + filenameV, "rw"); //"collectionIndex/partialIndexing/
+        partialVocab.seek(0);
+
+        RandomAccessFile partialPost = new RandomAccessFile(basePath + filenameP, "rw");
+        partialPost.seek(0);
+
+        for (Map.Entry<String, Term> voc : vocabulary.entrySet()) {
+            Term term = voc.getValue();
+            String val = term.getValue();
+            int df = term.getDf();
+
+            long ptr = partialPost.getFilePointer();
+            TreeMap<Integer, HashMap<String, ArrayList<Integer>>> perDocumentTagPositions = term.getPerDocumentTagPositions();
+            for (Map.Entry<Integer, HashMap<String, ArrayList<Integer>>> docTagPos : perDocumentTagPositions.entrySet()) {
+                int docID = docTagPos.getKey();
+                double tf = term.getPerDocumentTF().get(docID);
+                String positionTags = "";
+                HashMap<String, ArrayList<Integer>> positions = docTagPos.getValue();
+                for (Map.Entry<String, ArrayList<Integer>> pos : positions.entrySet()) {
+                    String tag = pos.getKey();
+                    ArrayList<Integer> poses = pos.getValue();
+                    positionTags += "[" + tag + "=";
+                    for (int p : poses) {
+                        positionTags += p + ",";
+                    }
+                    positionTags += "]";
+                }
+
+                String postLine = docID + " " + tf + " " + positionTags + "\n";
+                partialPost.writeUTF(postLine);
+            }
+
+            String vocabLine = val + " " + df + " " + ptr + "\n";
+            partialVocab.writeUTF(vocabLine);
         }
-        docWriter.close();
+
+        partialPost.close();
+        partialVocab.close();
+
+        filenames.add(filenameV);
+
+        vocabulary.clear();
+
+        System.gc();
+    }
+
+    private void mergePartialFiles(ArrayList<String> vocabFileNames, String vocab1, String vocab2) {
+        /*String partialVocabName = currentVocabFilename;
+        String partialPostName = currentVocabFilename.replace("vocab", "post"); //correspondence!
+
+        RandomAccessFile partialVocabRAF = new RandomAccessFile(partialFilesDirectory + partialVocabName, "r");
+        RandomAccessFile partialPostRAF = new RandomAccessFile(partialFilesDirectory + partialPostName, "r");
+        partialVocabRAF.close();
+        partialPostRAF.close();*/
+    }
+
+    private void mergePartialFiles(String partialFilesDirectory, ArrayList<String> vocabFileNames, String outputDirectoryPath) throws FileNotFoundException {
+
+        int index = 0;
+        int counter = vocabFileNames.size();
+        while (!vocabFileNames.isEmpty()) {
+
+            if (vocabFileNames.size() == 1) {
+                break;
+            }
+
+            String currentVocabFilename = vocabFileNames.get(0);
+            vocabFileNames.remove(0);
+
+        }
+
     }
 
     public BioMedicIndexer() {
@@ -127,44 +206,62 @@ public class BioMedicIndexer {
         stopWords.addAll(fileStopWords);
     }
 
-    public TreeMap<String, Term> processNXMLDirectory(String directoryBasePath) throws IOException {
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 300);
-        int documentCounter = 1;
-        System.out.println("Total documents to process: " + filepaths.size());
-        System.out.println(filepaths);
-        for (String filepath : filepaths) {
-            Doc doc = new Doc(documentCounter, filepath);
-            documents.put(documentCounter++, doc);
-            readNXMLFile(doc);
-        }
+    public void indexNXMLDirectory(String directoryBasePath, String outputDirectoryPath) throws IOException {
 
-        System.out.println("Total terms: " + vocabulary.size());
+        long startTime = System.nanoTime();
 
-        createVocabularyFile("./collectionIndex/vocabularyFile.txt");
-        createDocumentsFile("./collectionIndex/documentsFile.txt");
+        String documentsFilepath = outputDirectoryPath + "documentFile.txt";
+        String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        //Start creating separate files
-        return vocabulary;
-    }
-
-    public void indexNXMLDirectory(String directoryBasePath) throws IOException {
-        //STEP 1. Create The Doc File
         Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);
+        ArrayList<String> partialVocabsFilenames = new ArrayList<>();
+
         int documentCounter = 0;
-        documentsRAF = new RandomAccessFile("collectionIndex/documentsFile.txt", "rw");
+        int partialCounter = 0;
+
+        RandomAccessFile documentsRAF = new RandomAccessFile(documentsFilepath, "rw");
         documentsRAF.seek(0);
+
+        System.out.println("BioMedic Indexer started created the partial files");
         for (String filepath : filepaths) {
             Doc doc = new Doc(documentCounter, filepath);
-            
+
+            doc.setDocFilePointer(documentsRAF.getFilePointer());
             doc.setNorm(new File(filepath).length());
-            
-            documents.put(documentCounter, doc);
+
+            if (vocabulary.size() >= PARTIAL_INDEX_THRESHOLD) {
+                createPartialFiles(partialCounter++, partialFilesDirectory, partialVocabsFilenames);
+            }
+
+            readNXMLFile(doc);
             documentCounter++;
 
-            String line2write = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
-            documentsRAF.writeUTF(line2write);
-            doc.setDocFilePointer(documentsRAF.getFilePointer());
+            if (documentCounter % 1000 == 0) {
+                System.out.println("Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes");
+            }
+
+            //write stuff to file
+            String docLine = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
+            documentsRAF.writeUTF(docLine);
         }
+
+        documentsRAF.close();
+        System.out.println("BioMedic Indexer created the partial files. Procceeding to merging phase.");
+
+        //here, merge the shiet
+        mergePartialFiles(partialFilesDirectory, partialVocabsFilenames, outputDirectoryPath);
+
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+
+        //End Logging
+        System.out.println("========= BioMedic Indexer Results =========");
+        System.out.println("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD);
+        System.out.println("Directory of documents indexed: " + directoryBasePath);
+        System.out.println("Directory of indexer output: " + outputDirectoryPath);
+        System.out.println("Total Documents Indexed: " + documentCounter);
+        System.out.println("Total Time Elapsed (in seconds): " + timeElapsed / 1000000000.0);
+        System.out.println("=======================================");
 
     }
 
@@ -172,10 +269,6 @@ public class BioMedicIndexer {
         File example = new File(doc.getPath());
         NXMLFileReader xmlFile = new NXMLFileReader(example);
 
-        //doc.setNorm(example.length());
-
-        //Step 1. Read the raw NXML file contents.
-        //We care only for the following tags.
         String pmcid = xmlFile.getPMCID();
         String title = xmlFile.getTitle();
         String abstr = xmlFile.getAbstr();
@@ -191,8 +284,6 @@ public class BioMedicIndexer {
         for (int i = 0; i < tagContents.length; i++) {
             String currentContent = tagContents[i]; //The whole text in tag i
             String currentTag = tagNames[i]; //1-1 correspondence between i.
-
-            //System.out.println(currentTag + " ::: " + currentContent);
             processRawContent(currentContent, currentTag, doc.getId());
         }
 
@@ -207,6 +298,8 @@ public class BioMedicIndexer {
             String currentContent = categoryInfo;
             processRawContent(currentContent, currentTag, doc.getId());
         }
+
+        calculateTFofTermsOfDocument(doc.getId());
 
     }
 }

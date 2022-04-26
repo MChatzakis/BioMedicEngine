@@ -22,10 +22,8 @@ public class Main {
 
         String greekStopWordsFile = "./stopwords/stopwordsGr.txt";
         index.loadStopWords(greekStopWordsFile);
-
-        //System.out.println("Total stopwords: " + index.getStopWords().size());
-        //System.out.println("Stop words of the indexer are: " + index.getStopWords());
-        index.processNXMLDirectory("C://MedicalCollection");
+        
+        index.indexNXMLDirectory("C://MedicalCollection" , "./collectionIndex/");
     }
 
     public static void main(String[] args) throws Exception {
