@@ -6,7 +6,9 @@
 package main;
 
 import index.BioMedicIndexer;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import retrieval.BioMedicRetriever;
 
 /**
  *
@@ -22,13 +24,24 @@ public class Main {
 
         String greekStopWordsFile = "./stopwords/stopwordsGr.txt";
         index.loadStopWords(greekStopWordsFile);
-        
+
         String smallCollection = "./sample/";
         String bigCollection = "C://MedicalCollection/";
-        index.indexNXMLDirectory(bigCollection , "./collectionIndex/");
+        index.indexNXMLDirectory(bigCollection, "./collectionIndex/");
+    }
+
+    public static void queryAnswering() throws FileNotFoundException, IOException {
+        String vocabularyFile = "./collectionIndex/vocabulary.txt";
+        String documentsFile = "./collectionIndex/documentsFile.txt";
+        String postingFile = "./collectionIndex/postings.txt";
+
+        BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile);
+        
+        bmr.loadVocabulary();
     }
 
     public static void main(String[] args) throws Exception {
-        createIndex();
+        //createIndex();
+        queryAnswering();
     }
 }

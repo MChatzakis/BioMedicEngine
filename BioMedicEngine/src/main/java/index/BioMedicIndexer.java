@@ -38,7 +38,7 @@ public class BioMedicIndexer {
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
     private final String[] tagNames = {"PMC&ID", "Title", "Abstract", "Body", "Journal", "Publisher", "Authors", "Categories"};
 
-    private TreeMap<String, Term> vocabulary;
+    private TreeMap<String, IndexTerm> vocabulary;
     private ArrayList<Doc> documents;
 
     private void initialize() {
@@ -73,10 +73,10 @@ public class BioMedicIndexer {
     }
 
     private void addTermToMapAction(String currentWord, String currentTag, int docID, int positionInTag) {
-        Term currentTerm;
+        IndexTerm currentTerm;
 
         if (!vocabulary.containsKey(currentWord)) {
-            currentTerm = new Term(currentWord);
+            currentTerm = new IndexTerm(currentWord);
             vocabulary.put(currentWord, currentTerm);
         } else {
             currentTerm = vocabulary.get(currentWord);
@@ -106,8 +106,8 @@ public class BioMedicIndexer {
 
     private void calculateTFofTermsOfDocument(int docID) {
         int maxOcc = 0;
-        for (Map.Entry<String, Term> cterm : vocabulary.entrySet()) {
-            Term term = cterm.getValue();
+        for (Map.Entry<String, IndexTerm> cterm : vocabulary.entrySet()) {
+            IndexTerm term = cterm.getValue();
             int termOcc = term.calculateOccurencesInDoc(docID);
 
             if (termOcc >= maxOcc) {
@@ -116,8 +116,8 @@ public class BioMedicIndexer {
 
         }
 
-        for (Map.Entry<String, Term> cterm : vocabulary.entrySet()) {
-            Term term = cterm.getValue();
+        for (Map.Entry<String, IndexTerm> cterm : vocabulary.entrySet()) {
+            IndexTerm term = cterm.getValue();
             term.calculateTFinDoc(docID, maxOcc);
         }
     }
@@ -132,8 +132,8 @@ public class BioMedicIndexer {
         RandomAccessFile partialPost = new RandomAccessFile(basePath + filenameP, "rw");
         partialPost.seek(0);
 
-        for (Map.Entry<String, Term> voc : vocabulary.entrySet()) {
-            Term term = voc.getValue();
+        for (Map.Entry<String, IndexTerm> voc : vocabulary.entrySet()) {
+            IndexTerm term = voc.getValue();
             String val = term.getValue();
             int df = term.getDf();
 
@@ -419,12 +419,12 @@ public class BioMedicIndexer {
 
     public void indexNXMLDirectory(String directoryBasePath, String outputDirectoryPath) throws IOException {
 
-        long startTime = System.nanoTime();
+        long startTime = System.nanoTime(), currentTime;
 
         String documentsFilepath = outputDirectoryPath + "documentFile.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 1000);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 50000);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -448,7 +448,7 @@ public class BioMedicIndexer {
             documentCounter++;
 
             if (documentCounter % PARTIAL_INDEX_LOGGING_POINT == 0) {
-                System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes");
+                System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes. Time passed (seconds): " + (System.nanoTime() - startTime) / 1000000000.0);
             }
 
             //write stuff to file
@@ -457,12 +457,17 @@ public class BioMedicIndexer {
         }
 
         documentsRAF.close();
+
+        currentTime = System.nanoTime();
+        long partitioningTimeElapsed = currentTime - startTime;
         System.out.println(">>BioMedic Indexer created the partial files. Procceeding to merging phase.");
 
         //here, merge the shiet
+        long mergingTimeStart = System.nanoTime();
         mergePartialFiles(partialFilesDirectory, partialVocabsFilenames, outputDirectoryPath);
 
         long endTime = System.nanoTime();
+        long mergingTimeElapsed = endTime - mergingTimeStart;
         long timeElapsed = endTime - startTime;
 
         //End Logging
@@ -471,9 +476,10 @@ public class BioMedicIndexer {
         System.out.println("Directory of documents indexed: " + directoryBasePath);
         System.out.println("Directory of indexer output: " + outputDirectoryPath);
         System.out.println("Total Documents Indexed: " + documentCounter);
-        System.out.println("Total Time Elapsed (in seconds): " + timeElapsed / 1000000000.0);
+        System.out.println("Time Elapsed for Partitioning Phase (seconds): " + partitioningTimeElapsed / 1000000000.0);
+        System.out.println("Time Elapsed for Merging Phase (seconds): " + mergingTimeElapsed / 1000000000.0);
+        System.out.println("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0);
         System.out.println("=======================================");
-
     }
 
     public void readNXMLFile(Doc doc) throws IOException {
