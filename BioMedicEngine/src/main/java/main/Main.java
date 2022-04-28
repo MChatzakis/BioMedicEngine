@@ -8,6 +8,7 @@ package main;
 import index.BioMedicIndexer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import mitos.stemmer.Stemmer;
 import retrieval.BioMedicRetriever;
 
 /**
@@ -36,11 +37,13 @@ public class Main {
         String postingFile = "./collectionIndex/postings.txt";
 
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile);
-        
+
         bmr.loadVocabulary();
     }
 
     public static void main(String[] args) throws Exception {
+        Stemmer.Initialize();
+        
         //createIndex();
         queryAnswering();
     }

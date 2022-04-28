@@ -75,4 +75,26 @@ public class CommonUtilities {
         }
     }
 
+    //from http://www.java2s.com/example/java-utility-method/cosine-similarity/cosine-similarity-double-vec1-double-vec2-f9000.html
+    public static double cosineSimilarity(double[] vec1, double[] vec2) {
+        double cosim = vectorDot(vec1, vec2) / (vectorNorm(vec1) * vectorNorm(vec2));
+        return cosim;
+    }
+
+    public static double vectorDot(double[] vec1, double[] vec2) {
+        double sum = 0;
+        for (int i = 0; i < vec1.length && i < vec2.length; i++) {
+            sum += vec1[i] * vec2[i];
+        }
+        return sum;
+    }
+
+    public static double vectorNorm(double[] vec) {
+        double sum = 0;
+        for (double v : vec) {
+            sum += v * v;
+        }
+        return Math.sqrt(sum);
+    }
+
 }

@@ -5,6 +5,7 @@
  */
 package index;
 
+import generalStructures.Doc;
 import commonUtilities.CommonUtilities;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.File;

@@ -5,9 +5,11 @@
  */
 package retrieval;
 
+import generalStructures.Doc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 /**
@@ -22,12 +24,15 @@ public class BioMedicRetriever {
 
     TreeMap<String, SearchTerm> vocabulary;
 
+    QueryProcessor queryProcessor;
+    
     public BioMedicRetriever(String documentsFile, String postingFile, String vocabularyFile) throws FileNotFoundException {
         documentsRaf = new RandomAccessFile(documentsFile, "rw");
         postingRaf = new RandomAccessFile(postingFile, "rw");
         vocabularyRaf = new RandomAccessFile(vocabularyFile, "rw");
 
         vocabulary = new TreeMap<>();
+        queryProcessor = new QueryProcessor();
     }
 
     public void loadVocabulary() throws IOException {
@@ -46,9 +51,25 @@ public class BioMedicRetriever {
 
             vocabulary.put(value, new SearchTerm(value, df, ptr));
             //System.out.println("Loaded term " + value);
-
         }
+        vocabularyRaf.seek(0);
 
         System.out.println(">>Total terms loaded: " + vocabulary.size());
+    }
+
+    public ArrayList<Doc> findRelevantDocumentsOfDoc(String query){
+        ArrayList<Doc>relevantDocs = new ArrayList<>();
+        
+        ArrayList<String>queryTerms = queryProcessor.parseQuery(query);
+        
+        for(String cterm : queryTerms){
+            if(!vocabulary.containsKey(cterm)){
+                continue;
+            }
+            
+            SearchTerm term = vocabulary.get(cterm);
+        }
+        
+        return relevantDocs;
     }
 }
