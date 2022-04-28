@@ -23,7 +23,9 @@ public class Main {
         String greekStopWordsFile = "./stopwords/stopwordsGr.txt";
         index.loadStopWords(greekStopWordsFile);
         
-        index.indexNXMLDirectory("C://MedicalCollection" , "./collectionIndex/");
+        String smallCollection = "./sample/";
+        String bigCollection = "C://MedicalCollection/";
+        index.indexNXMLDirectory(smallCollection , "./collectionIndex/");
     }
 
     public static void main(String[] args) throws Exception {
