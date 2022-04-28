@@ -25,7 +25,7 @@ public class Main {
         
         String smallCollection = "./sample/";
         String bigCollection = "C://MedicalCollection/";
-        index.indexNXMLDirectory(smallCollection , "./collectionIndex/");
+        index.indexNXMLDirectory(bigCollection , "./collectionIndex/");
     }
 
     public static void main(String[] args) throws Exception {

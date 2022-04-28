@@ -31,7 +31,7 @@ import mitos.stemmer.Stemmer;
 @Data
 public class BioMedicIndexer {
 
-    private final int PARTIAL_INDEX_THRESHOLD = 1000;
+    private final int PARTIAL_INDEX_THRESHOLD = 15000;
     private final int PARTIAL_INDEX_LOGGING_POINT = 100;
 
     private ArrayList<String> stopWords;
@@ -187,10 +187,10 @@ public class BioMedicIndexer {
         String line;
         pos1.seek(currPtr);
         while ((line = pos1.readUTF()) != null) {
-            if (line.equals("#end") || line.equals("#stop \n")) {
+            if (line.equals("#end") || line.equals("#stop\n")) {
                 break;
             }
-
+            //System.out.println("[]->" + line);
             String[] contents = line.split(" ");
 
             String doc = contents[0];
@@ -198,8 +198,9 @@ public class BioMedicIndexer {
             String pos = contents[2];
 
             postNew.writeUTF(doc + " " + tf + " " + pos + " \n");
-
         }
+
+        postNew.writeUTF("#stop\n");
     }
 
     private void mergeContentsAndCopyToRAF(String[] contentsV1, String[] contentsV2, RandomAccessFile pos1, RandomAccessFile pos2, RandomAccessFile vocNew, RandomAccessFile postNew) throws IOException {
@@ -212,16 +213,15 @@ public class BioMedicIndexer {
         long ptr2 = Long.parseLong(contentsV2[2]);
 
         long newPtr = postNew.getFilePointer();
+        String line1 = "", line2 = "";
 
-        String line1, line2;
         pos1.seek(ptr1);
         pos2.seek(ptr2);
-        while ((line1 = pos1.readUTF()) != null && (line2 = pos2.readUTF()) != null) {
-            if (line1.equals("#end") || line2.equals("#end")) {
-                break;
-            }
+        line1 = pos1.readUTF();
+        line2 = pos2.readUTF();
+        while (!line1.equals("#stop\n") && !line2.equals("#stop\n")) {
 
-            if (line1.equals("#stop \n") || line2.equals("#stop \n")) {
+            if (line1.equals("#end") || line2.equals("#end")) {
                 break;
             }
 
@@ -232,39 +232,34 @@ public class BioMedicIndexer {
             int docID2 = Integer.parseInt(conts2[0]);
 
             if (docID1 < docID2) {
-                //write1
                 postNew.writeUTF(line1);
             } else {
-                //write2
                 postNew.writeUTF(line2);
             }
+
+            line1 = pos1.readUTF();
+            line2 = pos2.readUTF();
         }
 
-        while ((line1 = pos1.readUTF()) != null) {
+        while (!line1.equals("#stop\n")) {
             if (line1.equals("#end")) {
-                break;
-            }
-            if (line1.equals("#stop \n")) {
                 break;
             }
 
             postNew.writeUTF(line1);
-
+            line1 = pos1.readUTF();
         }
 
-        while ((line2 = pos2.readUTF()) != null) {
+        while (!line2.equals("#stop\n")) {
             if (line2.equals("#end")) {
-                break;
-            }
-            if (line2.equals("#stop \n")) {
                 break;
             }
 
             postNew.writeUTF(line2);
-
+            line2 = pos2.readUTF();
         }
 
-        postNew.writeUTF("#stop \n");
+        postNew.writeUTF("#stop\n");
         vocNew.writeUTF(term + " " + (df1 + df2) + " " + newPtr + " \n");
     }
 
@@ -279,17 +274,15 @@ public class BioMedicIndexer {
         RandomAccessFile voc2 = new RandomAccessFile(vocab2, "r");
         RandomAccessFile post2 = new RandomAccessFile(vocab2.replace("vocab", "post"), "r");
 
-        RandomAccessFile newVoc = new RandomAccessFile(dir + newVocabFilename, "wr");
-        RandomAccessFile newPost = new RandomAccessFile(dir + (newVocabFilename).replace("", "post"), "wr");
+        RandomAccessFile newVoc = new RandomAccessFile(dir + newVocabFilename, "rw");
+        RandomAccessFile newPost = new RandomAccessFile(dir + (newVocabFilename).replace("vocab", "post"), "rw");
 
-        //merge alg
-        String lineV1, lineV2;
-        while ((lineV1 = voc1.readUTF()) != null && (lineV2 = voc2.readUTF()) != null) {
-            if (lineV1.equals("#end") || lineV2.equals("#end")) {
-                break;
-            }
+        String lineV1 = voc1.readUTF(), lineV2 = voc2.readUTF();
+        while (!lineV1.equals("#end") && !lineV2.equals("#end")) {
+
             String[] contentsV1 = lineV1.split(" ");
             String[] contentsV2 = lineV2.split(" ");
+
             String currentTermV1 = contentsV1[0];
             String currentTermV2 = contentsV2[0];
 
@@ -301,22 +294,21 @@ public class BioMedicIndexer {
             } else {
                 copyContentsToRAF(contentsV2, post2, newVoc, newPost);
             }
+
+            lineV1 = voc1.readUTF();
+            lineV2 = voc2.readUTF();
         }
 
-        while ((lineV1 = voc1.readUTF()) != null) {
-            if (lineV1.equals("#end")) {
-                break;
-            }
+        while (!lineV1.equals("#end")) {
             String[] contentsV1 = lineV1.split(" ");
             copyContentsToRAF(contentsV1, post1, newVoc, newPost);
+            lineV1 = voc1.readUTF();
         }
 
-        while ((lineV2 = voc2.readUTF()) != null) {
-            if (lineV2.equals("#end")) {
-                break;
-            }
+        while (!lineV2.equals("#end")) {
             String[] contentsV2 = lineV2.split(" ");
             copyContentsToRAF(contentsV2, post2, newVoc, newPost);
+            lineV2 = voc2.readUTF();
         }
 
         voc1.close();
@@ -324,9 +316,14 @@ public class BioMedicIndexer {
         voc2.close();
         post2.close();
 
+        newVoc.writeUTF("#end");
+        newPost.writeUTF("#end");
         newVoc.close();
         newPost.close();
 
+        //printVocabRaf(dir + newVocabFilename);
+        //printPostingsRaf(dir + (newVocabFilename).replace("vocab", "post"));
+        //System.exit(-1);
         vocabFileNames.add(newVocabFilename);
     }
 
@@ -373,6 +370,11 @@ public class BioMedicIndexer {
                 break;
             }
 
+            if (line.equals("#stop\n")) {
+                System.out.println("[" + (counter) + "]: stop");
+                continue;
+            }
+
             String[] contents = line.split(" ");
             String doc = contents[0];
             String tf = contents[1];
@@ -389,18 +391,21 @@ public class BioMedicIndexer {
         while (vocabFileNames.size() > 1) {
             String vocab1 = partialFilesDirectory + vocabFileNames.remove(0);
             String vocab2 = partialFilesDirectory + vocabFileNames.remove(0);
-            
+
             mergePartialFiles(vocabFileNames, vocab1, vocab2, partialFilesDirectory, n_counter++);
         }
 
         String vocabFilename = vocabFileNames.get(0); //unsafe but ok
         String postFilename = vocabFilename.replace("vocab", "post");
 
+        Files.deleteIfExists(new File(outputDirectoryPath + "vocabulary.txt").toPath());
+        Files.deleteIfExists(new File(outputDirectoryPath + "postings.txt").toPath());
+
         Files.copy(new File(partialFilesDirectory + vocabFilename).toPath(), new File(outputDirectoryPath + "vocabulary.txt").toPath());
         Files.copy(new File(partialFilesDirectory + postFilename).toPath(), new File(outputDirectoryPath + "postings.txt").toPath());
 
-        printVocabRaf(outputDirectoryPath + "vocabulary.txt");
-        printPostingsRaf(outputDirectoryPath + "postings.txt");
+        //printVocabRaf(outputDirectoryPath + "vocabulary.txt");
+        //printPostingsRaf(outputDirectoryPath + "postings.txt");
     }
 
     public BioMedicIndexer() {
@@ -419,7 +424,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documentFile.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 1000);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -428,7 +433,7 @@ public class BioMedicIndexer {
         RandomAccessFile documentsRAF = new RandomAccessFile(documentsFilepath, "rw");
         documentsRAF.seek(0);
 
-        System.out.println("BioMedic Indexer started created the partial files");
+        System.out.println(">>BioMedic Indexer started creating the partial files");
         for (String filepath : filepaths) {
             Doc doc = new Doc(documentCounter, filepath);
 
@@ -443,7 +448,7 @@ public class BioMedicIndexer {
             documentCounter++;
 
             if (documentCounter % PARTIAL_INDEX_LOGGING_POINT == 0) {
-                System.out.println("Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes");
+                System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes");
             }
 
             //write stuff to file
@@ -452,7 +457,7 @@ public class BioMedicIndexer {
         }
 
         documentsRAF.close();
-        System.out.println("BioMedic Indexer created the partial files. Procceeding to merging phase.");
+        System.out.println(">>BioMedic Indexer created the partial files. Procceeding to merging phase.");
 
         //here, merge the shiet
         mergePartialFiles(partialFilesDirectory, partialVocabsFilenames, outputDirectoryPath);
