@@ -75,14 +75,14 @@ public class BioMedicRetriever {
             long ptr = Long.parseLong(contents[2]);
             
             vocabulary.put(value, new SearchTerm(value, df, ptr));
-            //System.out.println("Loaded term " + value);
+            System.out.println("Loaded term " + value);
         }
         vocabularyRaf.seek(0);
         
         System.out.println(">>Total terms loaded: " + vocabulary.size());
     }
     
-    public ArrayList<Doc> findRelevantDocumentsOfDoc(String query) {
+    public ArrayList<Doc> findRelevantDocumentsOfDoc(String query) throws IOException {
         ArrayList<Doc> relevantDocs = new ArrayList<>();
         
         ArrayList<String> queryTerms = queryProcessor.parseQuery(query);
@@ -93,6 +93,7 @@ public class BioMedicRetriever {
             }
             
             SearchTerm term = vocabulary.get(cterm);
+            traversePostingsOfTerm(relevantDocs, term);
         }
         
         return relevantDocs;

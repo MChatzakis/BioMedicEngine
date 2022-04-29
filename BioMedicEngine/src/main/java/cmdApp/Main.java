@@ -45,7 +45,7 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
         while (true) {
-            System.out.println(">>>");
+            System.out.println(">>> Type a query");
             String inputQuery = sc.nextLine();
 
             if (inputQuery.equals("!exit")) {
@@ -65,7 +65,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Stemmer.Initialize();
 
-        createIndex();
-        //queryAnswering();
+        //createIndex();
+        queryAnswering();
     }
 }
