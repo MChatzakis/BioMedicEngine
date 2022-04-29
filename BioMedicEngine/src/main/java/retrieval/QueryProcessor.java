@@ -62,16 +62,6 @@ public class QueryProcessor {
         return queryTerms;
     }
 
-    public ArrayList<Doc> findRelevantDocumentsOfDoc(String query){
-        ArrayList<Doc>relevantDocs = new ArrayList<>();
-        
-        ArrayList<String>queryTerms = parseQuery(query);
-        
-        for(String term : queryTerms){
-            
-        }
-        
-        return relevantDocs;
-    }
+    
     
 }

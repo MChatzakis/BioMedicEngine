@@ -40,16 +40,14 @@ public class BioMedicIndexer {
     private final String[] tagNames = {"PMC&ID", "Title", "Abstract", "Body", "Journal", "Publisher", "Authors", "Categories"};
 
     private TreeMap<String, IndexTerm> vocabulary;
-    private ArrayList<Doc> documents;
+    private TreeMap<Integer, Long> docPointerPairs;
 
     private void initialize() {
         stopWords = new ArrayList<>();
         stopWords.addAll(Arrays.asList(stopPoints));
 
         vocabulary = new TreeMap<>();
-        //documents = new TreeMap<>();
-        documents = new ArrayList<>();
-        Stemmer.Initialize();
+        docPointerPairs = new TreeMap<>();
     }
 
     /**
@@ -155,7 +153,7 @@ public class BioMedicIndexer {
                     positionTags += "_";
                 }
 
-                String postLine = docID + " " + tf + " " + positionTags + " \n";
+                String postLine = docID + " " + tf + " " + positionTags + " " + docPointerPairs.get(docID) + " \n";
                 partialPost.writeUTF(postLine);
             }
 
@@ -173,6 +171,7 @@ public class BioMedicIndexer {
         filenames.add(filenameV);
 
         vocabulary.clear();
+        docPointerPairs.clear();
 
         System.gc(); //den perimena pote oti tha to kanw auto...
     }
@@ -328,65 +327,6 @@ public class BioMedicIndexer {
         vocabFileNames.add(newVocabFilename);
     }
 
-    private void printVocabRaf(String filename) throws IOException {
-        String vocabFilename = filename;
-
-        RandomAccessFile vocab = new RandomAccessFile(vocabFilename, "r");
-
-        vocab.seek(0);
-        String line;
-        int counter = 0;
-
-        System.out.println("Printing vocab file " + vocabFilename);
-        while ((line = vocab.readUTF()) != null) {
-
-            if (line.equals("#end")) {
-                break;
-            }
-
-            String[] contents = line.split(" ");
-            String termValue = contents[0];
-            String df = contents[1];
-            String ptr = contents[2];
-
-            System.out.println("[" + (counter++) + "]:" + termValue + " " + df + " " + ptr);
-        }
-
-        vocab.close();
-    }
-
-    private void printPostingsRaf(String filename) throws IOException {
-        String postFilename = filename;
-
-        RandomAccessFile post = new RandomAccessFile(postFilename, "r");
-
-        post.seek(0);
-        String line;
-        int counter = 0;
-
-        System.out.println("Printing post file " + postFilename);
-        while ((line = post.readUTF()) != null) {
-
-            if (line.equals("#end")) {
-                break;
-            }
-
-            if (line.equals("#stop\n")) {
-                System.out.println("[" + (counter) + "]: stop");
-                continue;
-            }
-
-            String[] contents = line.split(" ");
-            String doc = contents[0];
-            String tf = contents[1];
-            String pos = contents[2];
-            System.out.println("[" + (counter++) + "]:" + doc + " " + tf + " " + pos);
-
-        }
-
-        post.close();
-    }
-
     private void mergePartialFiles(String partialFilesDirectory, ArrayList<String> vocabFileNames, String outputDirectoryPath) throws FileNotFoundException, IOException {
         int n_counter = 0;
         while (vocabFileNames.size() > 1) {
@@ -422,10 +362,10 @@ public class BioMedicIndexer {
 
         long startTime = System.nanoTime(), currentTime;
 
-        String documentsFilepath = outputDirectoryPath + "documentFile.txt";
+        String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 50000);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 100);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -440,6 +380,8 @@ public class BioMedicIndexer {
 
             doc.setDocFilePointer(documentsRAF.getFilePointer());
             doc.setNorm(new File(filepath).length());
+
+            docPointerPairs.put(doc.getId(), doc.getDocFilePointer());
 
             if (vocabulary.size() >= PARTIAL_INDEX_THRESHOLD) {
                 createPartialFiles(partialCounter++, partialFilesDirectory, partialVocabsFilenames);
