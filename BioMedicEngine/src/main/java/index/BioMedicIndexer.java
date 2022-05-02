@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package index;
 
 import generalStructures.Doc;
@@ -24,6 +19,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import lombok.Data;
 import mitos.stemmer.Stemmer;
+import vectorModel.VectorModel;
 
 /**
  *
@@ -365,7 +361,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 100);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 500);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -379,7 +375,6 @@ public class BioMedicIndexer {
             Doc doc = new Doc(documentCounter, filepath);
 
             doc.setDocFilePointer(documentsRAF.getFilePointer());
-            doc.setNorm(new File(filepath).length());
 
             docPointerPairs.put(doc.getId(), doc.getDocFilePointer());
 
@@ -408,9 +403,17 @@ public class BioMedicIndexer {
         //here, merge the shiet
         long mergingTimeStart = System.nanoTime();
         mergePartialFiles(partialFilesDirectory, partialVocabsFilenames, outputDirectoryPath);
+        currentTime = System.nanoTime();
+        long mergingTimeElapsed = currentTime - mergingTimeStart;
+
+        //produce the document vector file using the vector model, DF*iDF
+        long vmTimeStart = System.nanoTime();
+        VectorModel v = new VectorModel();
+        v.initializeDocumentVectorsToFile(documentsFilepath, outputDirectoryPath + "vocabulary.txt", outputDirectoryPath + "postings.txt", outputDirectoryPath + "vectors.txt", outputDirectoryPath + "mappings.txt", filepaths.size());
+        currentTime = System.nanoTime();
+        long vmTimeElapsed = currentTime - vmTimeStart;
 
         long endTime = System.nanoTime();
-        long mergingTimeElapsed = endTime - mergingTimeStart;
         long timeElapsed = endTime - startTime;
 
         //End Logging
@@ -421,6 +424,7 @@ public class BioMedicIndexer {
         System.out.println("Total Documents Indexed: " + documentCounter);
         System.out.println("Time Elapsed for Partitioning Phase (seconds): " + partitioningTimeElapsed / 1000000000.0);
         System.out.println("Time Elapsed for Merging Phase (seconds): " + mergingTimeElapsed / 1000000000.0);
+        System.out.println("Time Elapsed for Vector Calculation phase (seconds): " + vmTimeElapsed / 1000000000.0);
         System.out.println("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0);
         System.out.println("=======================================");
     }

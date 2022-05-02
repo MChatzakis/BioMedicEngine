@@ -5,6 +5,7 @@
  */
 package retrieval;
 
+import generalStructures.SearchTerm;
 import generalStructures.Doc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +22,9 @@ public class BioMedicRetriever {
     RandomAccessFile documentsRaf;
     RandomAccessFile vocabularyRaf;
     RandomAccessFile postingRaf;
+    RandomAccessFile vectorsRaf;
+    
+    TreeMap<Integer, Long> docVectorPairs;
     
     TreeMap<String, SearchTerm> vocabulary;
     
@@ -30,7 +34,7 @@ public class BioMedicRetriever {
         postingRaf.seek(term.getFp());
         String line;
         
-        while ((line = postingRaf.readUTF()) != null) {
+        while ((line = postingRaf.readUTF()) != null) { //this is just a dummy != to read the value inside while.
             if (line.equals("#stop\n") || line.equals("#end")) {
                 break;
             }

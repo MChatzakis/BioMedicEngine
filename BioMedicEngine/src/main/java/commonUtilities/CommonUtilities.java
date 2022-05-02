@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  *
- * @author manos
+ * @author Manos Chatzakis
  */
 public class CommonUtilities {
 
@@ -97,4 +97,11 @@ public class CommonUtilities {
         return Math.sqrt(sum);
     }
 
+    public static double log2(int N) {
+        return (Math.log(N) / Math.log(2));
+    }
+
+    public static double getIDF(int df, int N) {
+        return log2(N / df);
+    }
 }
