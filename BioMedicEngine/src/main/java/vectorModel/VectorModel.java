@@ -37,7 +37,7 @@ public class VectorModel {
             long ptr = Long.parseLong(contents[2]);
 
             vocabulary.put(value, new SearchTerm(value, df, ptr));
-            System.out.println("Loaded term " + value);
+            //System.out.println("Loaded term " + value);
         }
         vocabularyRaf.seek(0);
 
@@ -64,9 +64,10 @@ public class VectorModel {
 
             String[] contents = line.split(" ");
             int docID = Integer.parseInt(contents[0]);
+            double norm = 0;
 
-            double[] docVector = new double[totalTerms];
-            int currentDim = 0;
+            //double[] docVector = new double[totalTerms];
+            //int currentDim = 0;
             for (Map.Entry<String, SearchTerm> entry : vocabulary.entrySet()) {
                 //System.out.println(entry.getKey() + ":" + entry.getValue());
                 SearchTerm t = entry.getValue();
@@ -76,7 +77,6 @@ public class VectorModel {
                 //seek if this term is present in document with ID=docID
                 postingRaf.seek(t.getFp());
                 String cline;
-
                 while ((cline = postingRaf.readUTF()) != null) { //this is just a dummy != to read the value inside while.
                     if (cline.equals("#stop\n") || cline.equals("#end")) {
                         break;
@@ -94,20 +94,17 @@ public class VectorModel {
 
                 }
 
-                docVector[currentDim++] = tf * iDF;
-            }
-
-            //write line
-            String vec = "";
-            for (int i = 0; i < currentDim; i++) {
-                vec += docVector[i] + "";
-                if (i != currentDim - 1) {
-                    vec += ",";
-                }
+                //docVector[currentDim++] = tf * iDF;
+                // or maybe sum += (tf * iDF) * (tf * iDF)
+                norm += (tf * iDF) * (tf * iDF);
             }
 
             docVectorMappings.put(docID, vectorRaf.getFilePointer());
-            vectorRaf.writeUTF(docID + " " + vec + " \n");
+            vectorRaf.writeUTF(docID + " " + norm + " \n");
+
+            if (docID % 1000 == 0) {
+                System.out.println(">>Calculated the norm of docID " + docID);
+            }
         }
 
         vectorRaf.close();

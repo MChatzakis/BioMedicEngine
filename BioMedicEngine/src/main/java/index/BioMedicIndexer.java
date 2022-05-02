@@ -29,7 +29,7 @@ import vectorModel.VectorModel;
 public class BioMedicIndexer {
 
     private final int PARTIAL_INDEX_THRESHOLD = 15000;
-    private final int PARTIAL_INDEX_LOGGING_POINT = 100;
+    private final int PARTIAL_INDEX_LOGGING_POINT = 2000;
 
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
@@ -260,7 +260,7 @@ public class BioMedicIndexer {
     }
 
     private void mergePartialFiles(ArrayList<String> vocabFileNames, String vocab1, String vocab2, String dir, int counter) throws FileNotFoundException, IOException {
-        System.out.println("Merging pair " + vocab1 + " and " + vocab2);
+        System.out.println(">>Merging pair " + vocab1 + " and " + vocab2);
 
         String newVocabFilename = "m_vocab" + counter + ".txt";
 
@@ -361,7 +361,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 500);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);//.subList(0, 500);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -393,7 +393,8 @@ public class BioMedicIndexer {
             String docLine = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
             documentsRAF.writeUTF(docLine);
         }
-
+        
+        documentsRAF.writeUTF("#end");
         documentsRAF.close();
 
         currentTime = System.nanoTime();

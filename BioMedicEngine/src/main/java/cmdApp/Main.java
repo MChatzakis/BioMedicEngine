@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cmdApp;
 
 import generalStructures.Doc;
@@ -10,7 +5,9 @@ import index.BioMedicIndexer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import mitos.stemmer.Stemmer;
 import retrieval.BioMedicRetriever;
 
@@ -39,7 +36,10 @@ public class Main {
         String documentsFile = "./collectionIndex/documents.txt";
         String postingFile = "./collectionIndex/postings.txt";
 
-        BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile);
+        String normsFile = "./collectionIndex/postings.txt";
+        String mappingsFile = "./collectionIndex/postings.txt";
+
+        BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
 
         bmr.loadVocabulary();
 
@@ -52,12 +52,13 @@ public class Main {
                 break;
             }
 
-            ArrayList<Doc> results = bmr.findRelevantDocumentsOfDoc(inputQuery);
-            System.out.println("Results of query " + inputQuery);
-            for (Doc d : results) {
-                System.out.println("Document " + d.toString());
-            }
+            TreeMap<Double, Doc> results = bmr.findRelevantDocumentsOfQuery(inputQuery);
+            for (Map.Entry<Double, Doc> entry : results.entrySet()) {
+                double score = entry.getKey();
+                Doc doc = entry.getValue();
 
+                System.out.println(doc.getId() + " " + doc.getPath() + " " + score);
+            }
         }
 
     }
