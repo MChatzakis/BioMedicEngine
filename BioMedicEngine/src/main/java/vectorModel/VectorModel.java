@@ -66,10 +66,7 @@ public class VectorModel {
             int docID = Integer.parseInt(contents[0]);
             double norm = 0;
 
-            //double[] docVector = new double[totalTerms];
-            //int currentDim = 0;
             for (Map.Entry<String, SearchTerm> entry : vocabulary.entrySet()) {
-                //System.out.println(entry.getKey() + ":" + entry.getValue());
                 SearchTerm t = entry.getValue();
                 int df = t.getDf();
                 double iDF = CommonUtilities.getIDF(df, totalDocuments);
@@ -91,11 +88,8 @@ public class VectorModel {
                     } else if (cDocId > docID) {
                         break; //optimization
                     }
-
                 }
 
-                //docVector[currentDim++] = tf * iDF;
-                // or maybe sum += (tf * iDF) * (tf * iDF)
                 norm += (tf * iDF) * (tf * iDF);
             }
 
@@ -118,5 +112,62 @@ public class VectorModel {
         }
         writer.close();
 
+    }
+
+    public void initializeDocumentVectorsToFileOptimized(String documentsFilepath, String vocabularyFilepath, String postingsFilepath, String vectorsFilepath, String mappingsFilepath, int totalDocuments) throws FileNotFoundException, IOException {
+        RandomAccessFile documentsRaf = new RandomAccessFile(documentsFilepath, "r");
+        RandomAccessFile vocabularyRaf = new RandomAccessFile(vocabularyFilepath, "r");
+        RandomAccessFile postingRaf = new RandomAccessFile(postingsFilepath, "r");
+
+        RandomAccessFile vectorRaf = new RandomAccessFile(vectorsFilepath, "rw");
+
+        TreeMap<String, SearchTerm> vocabulary = loadVocabulary(vocabularyRaf);
+        TreeMap<Integer, Double> docNormMappings = new TreeMap<>();
+
+        int totalTerms = vocabulary.size();
+
+        for (Map.Entry<String, SearchTerm> entry : vocabulary.entrySet()) {
+            String termV = entry.getKey();
+            SearchTerm term = entry.getValue();
+
+            double iDF = CommonUtilities.getIDF(term.getDf(), totalDocuments);
+
+            postingRaf.seek(term.getFp());
+            String line;
+            while ((line = postingRaf.readUTF()) != null) {
+                if (line.equals("#end") || line.equals("#stop\n")) {
+                    break;
+                }
+
+                String[] contents = line.split(" ");
+                int docID = Integer.parseInt(contents[0]);
+                double tf = Double.parseDouble(contents[1]);
+
+                double norm2add = (tf * iDF) * (tf * iDF);
+                if (!docNormMappings.containsKey(docID)) {
+                    docNormMappings.put(docID, norm2add);
+                } else {
+                    docNormMappings.put(docID, docNormMappings.get(docID) + norm2add);
+                }
+
+            }
+
+        }
+        
+        BufferedWriter writer = new BufferedWriter(new FileWriter(mappingsFilepath));
+        for(Map.Entry<Integer, Double>entry : docNormMappings.entrySet()){
+            int docID = entry.getKey();
+            double norm = Math.sqrt(entry.getValue());
+            
+            writer.write(docID + " " + vectorRaf.getFilePointer() +"\n");
+            vectorRaf.writeUTF(docID + " " + norm + " \n");
+        }
+        
+        writer.close();
+        
+        documentsRaf.close();
+        vocabularyRaf.close();
+        postingRaf.close();
+        vectorRaf.close();
     }
 }

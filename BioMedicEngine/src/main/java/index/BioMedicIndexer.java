@@ -3,6 +3,7 @@ package index;
 import generalStructures.Doc;
 import commonUtilities.CommonUtilities;
 import gr.uoc.csd.hy463.NXMLFileReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -19,6 +20,8 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import lombok.Data;
 import mitos.stemmer.Stemmer;
+import plot.PlotGenerator;
+import plot.PlotPoint;
 import vectorModel.VectorModel;
 
 /**
@@ -29,7 +32,7 @@ import vectorModel.VectorModel;
 public class BioMedicIndexer {
 
     private final int PARTIAL_INDEX_THRESHOLD = 15000;
-    private final int PARTIAL_INDEX_LOGGING_POINT = 2000;
+    private final int PARTIAL_INDEX_LOGGING_POINT = 100;
 
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
@@ -356,12 +359,15 @@ public class BioMedicIndexer {
 
     public void indexNXMLDirectory(String directoryBasePath, String outputDirectoryPath) throws IOException {
 
+        ArrayList<PlotPoint> memoryPerDocPlot = new ArrayList<>();
+        ArrayList<PlotPoint> timePerDocPlot = new ArrayList<>();
+
         long startTime = System.nanoTime(), currentTime;
 
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);//.subList(0, 500);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 500);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -369,7 +375,8 @@ public class BioMedicIndexer {
 
         RandomAccessFile documentsRAF = new RandomAccessFile(documentsFilepath, "rw");
         documentsRAF.seek(0);
-
+        
+        //Part 1. Produce the Partial Files
         System.out.println(">>BioMedic Indexer started creating the partial files");
         for (String filepath : filepaths) {
             Doc doc = new Doc(documentCounter, filepath);
@@ -386,14 +393,20 @@ public class BioMedicIndexer {
             documentCounter++;
 
             if (documentCounter % PARTIAL_INDEX_LOGGING_POINT == 0) {
-                System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0 + " MBytes. Time passed (seconds): " + (System.nanoTime() - startTime) / 1000000000.0);
+                double usedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000.0;
+                double timePassed = (System.nanoTime() - startTime) / 1000000000.0;
+
+                System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + usedMemory + " MBytes. Time passed (seconds): " + timePassed);
+
+                memoryPerDocPlot.add(new PlotPoint(documentCounter, usedMemory));
+                timePerDocPlot.add(new PlotPoint(documentCounter, timePassed));
             }
 
             //write stuff to file
             String docLine = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
             documentsRAF.writeUTF(docLine);
         }
-        
+
         documentsRAF.writeUTF("#end");
         documentsRAF.close();
 
@@ -401,23 +414,41 @@ public class BioMedicIndexer {
         long partitioningTimeElapsed = currentTime - startTime;
         System.out.println(">>BioMedic Indexer created the partial files. Procceeding to merging phase.");
 
-        //here, merge the shiet
+        // Part2. Merging Phase
         long mergingTimeStart = System.nanoTime();
         mergePartialFiles(partialFilesDirectory, partialVocabsFilenames, outputDirectoryPath);
         currentTime = System.nanoTime();
         long mergingTimeElapsed = currentTime - mergingTimeStart;
 
-        //produce the document vector file using the vector model, DF*iDF
+        // Part3. Produce Vector Norms (in a separate file)
         long vmTimeStart = System.nanoTime();
         VectorModel v = new VectorModel();
-        v.initializeDocumentVectorsToFile(documentsFilepath, outputDirectoryPath + "vocabulary.txt", outputDirectoryPath + "postings.txt", outputDirectoryPath + "vectors.txt", outputDirectoryPath + "mappings.txt", filepaths.size());
+        v.initializeDocumentVectorsToFileOptimized(documentsFilepath, outputDirectoryPath + "vocabulary.txt", outputDirectoryPath + "postings.txt", outputDirectoryPath + "vectors.txt", outputDirectoryPath + "mappings.txt", filepaths.size());
         currentTime = System.nanoTime();
         long vmTimeElapsed = currentTime - vmTimeStart;
 
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
 
-        //End Logging
+        // Part4. Create Plots and Log the BioMedicIndexer results
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectoryPath + "log_report.txt"));
+
+        writer.write("========= BioMedic Indexer Results =========\n");
+        writer.write("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD + "\n");
+        writer.write("Directory of documents indexed: " + directoryBasePath + "\n");
+        writer.write("Directory of indexer output: " + outputDirectoryPath + "\n");
+        writer.write("Total Documents Indexed: " + documentCounter + "\n");
+        writer.write("Time Elapsed for Partitioning Phase (seconds): " + partitioningTimeElapsed / 1000000000.0 + "\n");
+        writer.write("Time Elapsed for Merging Phase (seconds): " + mergingTimeElapsed / 1000000000.0 + "\n");
+        writer.write("Time Elapsed for Vector Calculation phase (seconds): " + vmTimeElapsed / 1000000000.0 + "\n");
+        writer.write("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0 + "\n");
+        writer.write("=======================================\n");
+        writer.close();
+
+        PlotGenerator pg = new PlotGenerator();
+        pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Documents", "Memory (MBytes)");
+        pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Documents", "Time (seconds)");
+
         System.out.println("========= BioMedic Indexer Results =========");
         System.out.println("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD);
         System.out.println("Directory of documents indexed: " + directoryBasePath);
