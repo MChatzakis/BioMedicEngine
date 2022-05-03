@@ -368,7 +368,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 10);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 50);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -404,9 +404,11 @@ public class BioMedicIndexer {
             }
 
             //write stuff to file
-            String docLine = doc.getId() + " " + doc.getPath() + " " + doc.getNorm() + "\n";
+            String docLine = doc.getId() + " " + doc.getPath() + doc.getNorm() + " \n";
             documentsRAF.writeUTF(docLine);
         }
+
+        createPartialFiles(partialCounter++, partialFilesDirectory, partialVocabsFilenames); //write the last files
 
         documentsRAF.writeUTF("#end");
         documentsRAF.close();
