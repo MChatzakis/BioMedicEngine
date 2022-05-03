@@ -22,6 +22,5 @@ public class SearchResult {
         this.relevantDocuments = relevantDocuments;
     }
     
-    
 
 }
