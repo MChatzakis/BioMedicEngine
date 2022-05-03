@@ -4,6 +4,7 @@
  */
 package generalStructures;
 
+import java.util.TreeMap;
 import lombok.Data;
 
 /**
@@ -12,7 +13,15 @@ import lombok.Data;
  */
 @Data
 public class SearchResult {
+
+    private TreeMap<Double, DocumentResult> relevantDocuments;
+    private double responseTime;
+
+    public SearchResult(TreeMap<Double, DocumentResult> relevantDocuments, double responseTime) {
+        this.responseTime = responseTime;
+        this.relevantDocuments = relevantDocuments;
+    }
     
     
-    
+
 }
