@@ -2,6 +2,7 @@ package index;
 
 import generalStructures.Doc;
 import commonUtilities.CommonUtilities;
+import commonUtilities.RafPrinter;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,7 +32,7 @@ import vectorModel.VectorModel;
 @Data
 public class BioMedicIndexer {
 
-    private final int PARTIAL_INDEX_THRESHOLD = 15000;
+    private final int PARTIAL_INDEX_THRESHOLD = 1000;
     private final int PARTIAL_INDEX_LOGGING_POINT = 100;
 
     private ArrayList<String> stopWords;
@@ -367,7 +368,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 500);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 10);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -375,7 +376,7 @@ public class BioMedicIndexer {
 
         RandomAccessFile documentsRAF = new RandomAccessFile(documentsFilepath, "rw");
         documentsRAF.seek(0);
-        
+
         //Part 1. Produce the Partial Files
         System.out.println(">>BioMedic Indexer started creating the partial files");
         for (String filepath : filepaths) {
@@ -459,6 +460,12 @@ public class BioMedicIndexer {
         System.out.println("Time Elapsed for Vector Calculation phase (seconds): " + vmTimeElapsed / 1000000000.0);
         System.out.println("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0);
         System.out.println("=======================================");
+
+        //RafPrinter.printRaf(outputDirectoryPath + "vocabulary.txt");
+        //RafPrinter.printRaf(outputDirectoryPath + "documents.txt");
+        RafPrinter.printRaf(outputDirectoryPath + "postings.txt");
+        //RafPrinter.printRaf(outputDirectoryPath + "vectors.txt");
+
     }
 
     public void readNXMLFile(Doc doc) throws IOException {
