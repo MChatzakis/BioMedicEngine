@@ -14,10 +14,10 @@ import lombok.Data;
 @Data
 public class SearchResult {
 
-    private TreeMap<Double, DocumentResult> relevantDocuments;
+    private TreeMap<Double, DocResult> relevantDocuments;
     private double responseTime;
 
-    public SearchResult(TreeMap<Double, DocumentResult> relevantDocuments, double responseTime) {
+    public SearchResult(TreeMap<Double, DocResult> relevantDocuments, double responseTime) {
         this.responseTime = responseTime;
         this.relevantDocuments = relevantDocuments;
     }

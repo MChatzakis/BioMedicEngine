@@ -8,6 +8,8 @@ package retrieval;
 import commonUtilities.CommonUtilities;
 import generalStructures.SearchTerm;
 import generalStructures.Doc;
+import generalStructures.DocResult;
+import generalStructures.SearchResult;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -82,14 +84,14 @@ public class BioMedicRetriever {
                 dotProduct += (doc_i * query_i);
             }
         }
-        
+
         //2. get norm of doc d
         long pos = docNormsPairs.get(d.getId());
         normsRaf.seek(pos);
         String l = normsRaf.readUTF(); //no good but I guess its fine?
         double norm = Double.parseDouble((l.split(" "))[1]);
         //double norm = Math.sqrt(Double.parseDouble((l.split(" "))[1]));
-        
+
         return dotProduct / (norm * queryNorm); //cosSIm
     }
 
@@ -201,8 +203,8 @@ public class BioMedicRetriever {
         return relevantDocs;
     }
 
-    public TreeMap<Double, Doc> findRelevantDocumentsOfQuery(String query) throws IOException {
-        TreeMap<Double, Doc> results = new TreeMap<Double, Doc>(Collections.reverseOrder());
+    public SearchResult findRelevantDocumentsOfQuery(String query) throws IOException {
+        TreeMap<Double, DocResult> results = new TreeMap<>(Collections.reverseOrder());
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
 
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
@@ -211,10 +213,10 @@ public class BioMedicRetriever {
 
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);
-            results.put(score, d);
+            results.put(score, new DocResult(d, score));
         }
 
-        return results;
+        return new SearchResult(results, 0.0);
 
     }
 

@@ -11,19 +11,19 @@ import lombok.Data;
  * @author manos
  */
 @Data
-public class DocumentResult {
+public class DocResult {
 
     private Doc doc;
     private double score;
     private String snippet;
 
-    public DocumentResult(Doc doc, double score, String snippet) {
+    public DocResult(Doc doc, double score, String snippet) {
         this.doc = doc;
         this.score = score;
         this.snippet = snippet;
     }
 
-    public DocumentResult(Doc doc, double socre) {
+    public DocResult(Doc doc, double socre) {
         this.doc = doc;
         this.score = score;
 
