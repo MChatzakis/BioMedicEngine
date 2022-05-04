@@ -39,6 +39,28 @@ public class BioMedicRetriever {
 
     QueryProcessor queryProcessor;
 
+    private String findSnippet(Doc d, String query) throws IOException {
+        String rawC = CommonUtilities.getRawNXMLFileContent(d.getPath());
+
+        char[] rawCarr = rawC.toCharArray();
+
+        int pos = CommonUtilities.KnuthMorrisPrattSearch(query.toCharArray(), rawCarr);
+
+        if (pos < 0) {
+            return "";
+        }
+        
+        int start=pos,end = pos+query.toCharArray().length;
+        while(pos > 0){
+            start = pos;
+            
+            pos--;
+            
+        }
+
+        return "";
+    }
+
     private double getDocumentTFOfTerm(Doc d, String str) throws IOException {
         double tf = 0;
 

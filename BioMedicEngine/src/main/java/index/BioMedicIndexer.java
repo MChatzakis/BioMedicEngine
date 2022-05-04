@@ -32,8 +32,8 @@ import vectorModel.VectorModel;
 @Data
 public class BioMedicIndexer {
 
-    private final int PARTIAL_INDEX_THRESHOLD = 1000;
-    private final int PARTIAL_INDEX_LOGGING_POINT = 100;
+    private final int PARTIAL_INDEX_THRESHOLD = 15000;
+    private final int PARTIAL_INDEX_LOGGING_POINT = 2000;
 
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
@@ -368,7 +368,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 50);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 20000);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -449,8 +449,8 @@ public class BioMedicIndexer {
         writer.close();
 
         PlotGenerator pg = new PlotGenerator();
-        pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Documents", "Memory (MBytes)");
-        pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Documents", "Time (seconds)");
+        pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
+        pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Docs", "Time (seconds)");
 
         System.out.println("========= BioMedic Indexer Results =========");
         System.out.println("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD);
@@ -465,7 +465,7 @@ public class BioMedicIndexer {
 
         //RafPrinter.printRaf(outputDirectoryPath + "vocabulary.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "documents.txt");
-        RafPrinter.printRaf(outputDirectoryPath + "postings.txt");
+        //RafPrinter.printRaf(outputDirectoryPath + "postings.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "vectors.txt");
 
     }

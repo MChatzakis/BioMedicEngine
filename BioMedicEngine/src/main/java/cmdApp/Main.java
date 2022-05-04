@@ -1,6 +1,8 @@
 package cmdApp;
 
 import generalStructures.Doc;
+import generalStructures.DocResult;
+import generalStructures.SearchResult;
 import index.BioMedicIndexer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,13 +54,13 @@ public class Main {
                 break;
             }
 
-            TreeMap<Double, Doc> results = bmr.findRelevantDocumentsOfQuery(inputQuery);
-            for (Map.Entry<Double, Doc> entry : results.entrySet()) {
+            SearchResult results = bmr.findRelevantDocumentsOfQuery(inputQuery);
+            for (Map.Entry<Double, DocResult> entry : results.getRelevantDocuments().entrySet()) {
                 double score = entry.getKey();
-                Doc doc = entry.getValue();
-
-                System.out.println(doc.getId() + " " + doc.getPath() + " " + score);
+                DocResult docResult = entry.getValue();
+                System.out.println(docResult.toString());
             }
+            System.out.println("Response Time: " + results.getResponseTime());
         }
 
     }

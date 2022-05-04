@@ -163,6 +163,8 @@ public class VectorModel {
             vectorRaf.writeUTF(docID + " " + norm + " \n");
         }
         
+        vectorRaf.writeUTF("#end");
+        
         writer.close();
         
         documentsRaf.close();

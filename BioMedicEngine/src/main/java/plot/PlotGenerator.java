@@ -30,6 +30,7 @@ public class PlotGenerator {
         ArrayList<Double> yPoints = new ArrayList<>();
 
         for (PlotPoint p : points) {
+            //System.out.println("Added point x,y = " + p.getX() + " " + p.getY());
             xPoints.add(p.getX());
             yPoints.add(p.getY());
         }
@@ -44,10 +45,8 @@ public class PlotGenerator {
                 labelPadding(20).
                 labelFont(new Font("Arial", Font.PLAIN, 14)).
                 legend(Plot.LegendFormat.BOTTOM)).
-                xAxis(labelX, Plot.axisOpts().
-                        range(0, 1)).
-                yAxis(labelY, Plot.axisOpts().
-                        range(0, 1)).
+                xAxis(labelX, Plot.axisOpts() /*range(0, 1)*/).
+                yAxis(labelY, Plot.axisOpts()/*.range(0, 1)*/).
                 series(title, Plot.data().
                         xy(xPoints, yPoints),
                         Plot.seriesOpts().

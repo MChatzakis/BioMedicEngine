@@ -2,9 +2,9 @@
 Threshold of terms: 1000
 Directory of documents indexed: C://MedicalCollection/
 Directory of indexer output: ./collectionIndex/
-Total Documents Indexed: 50
-Time Elapsed for Partitioning Phase (seconds): 13.7664404
-Time Elapsed for Merging Phase (seconds): 1.8107005
-Time Elapsed for Vector Calculation phase (seconds): 0.0556315
-Total Time Elapsed (seconds): 15.6328557
+Total Documents Indexed: 300
+Time Elapsed for Partitioning Phase (seconds): 74.2615995
+Time Elapsed for Merging Phase (seconds): 12.1573377
+Time Elapsed for Vector Calculation phase (seconds): 0.0764887
+Total Time Elapsed (seconds): 86.495522
 =======================================

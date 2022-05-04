@@ -5,6 +5,7 @@
  */
 package commonUtilities;
 
+import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,5 +105,86 @@ public class CommonUtilities {
 
     public static double getIDF(int df, int N) {
         return log2(N / df);
+    }
+
+    public static int KnuthMorrisPrattSearch(char[] pattern, char[] text) {
+        int patternSize = pattern.length;
+        int textSize = text.length;
+
+        int i = 0, j = 0;
+
+        int[] shift = KnuthMorrisPrattShift(pattern);
+
+        while ((i + patternSize) <= textSize) {
+            while (text[i + j] == pattern[j]) {
+                j += 1;
+                if (j >= patternSize) {
+                    return i;
+                }
+            }
+
+            if (j > 0) {
+                i += shift[j - 1];
+                j = Math.max(j - shift[j - 1], 0);
+            } else {
+                i++;
+                j = 0;
+            }
+        }
+        return -1;
+    }
+
+    public static int[] KnuthMorrisPrattShift(char[] pattern) {
+        int patternSize = pattern.length;
+
+        int[] shift = new int[patternSize];
+        shift[0] = 1;
+
+        int i = 1, j = 0;
+
+        while ((i + j) < patternSize) {
+            if (pattern[i + j] == pattern[j]) {
+                shift[i + j] = i;
+                j++;
+            } else {
+                if (j == 0) {
+                    shift[i] = i + 1;
+                }
+
+                if (j > 0) {
+                    i = i + shift[j - 1];
+                    j = Math.max(j - shift[j - 1], 0);
+                } else {
+                    i = i + 1;
+                    j = 0;
+                }
+            }
+        }
+        return shift;
+    }
+
+    public static String getRawNXMLFileContent(String filepath) throws IOException {
+        String str = "";
+
+        File example = new File(filepath);
+        NXMLFileReader xmlFile = new NXMLFileReader(example);
+
+        str += xmlFile.getPMCID() + " ";
+        str += xmlFile.getTitle() + " ";
+        str += xmlFile.getAbstr() + " ";
+        str += xmlFile.getBody() + " ";
+        str += xmlFile.getJournal() + " ";
+        str += xmlFile.getPublisher() + " ";
+
+        ArrayList<String> authors = xmlFile.getAuthors();
+        for (String a : authors) {
+            str += a + " ";
+        }
+        HashSet<String> categories = xmlFile.getCategories();
+        for (String c : categories) {
+            str += c + " ";
+        }
+
+        return str;
     }
 }
