@@ -2,6 +2,7 @@ package cmdApp;
 
 import generalStructures.Doc;
 import generalStructures.DocResult;
+import generalStructures.IndexResult;
 import generalStructures.SearchResult;
 import index.BioMedicIndexer;
 import java.io.FileNotFoundException;
@@ -19,18 +20,14 @@ import retrieval.BioMedicRetriever;
  */
 public class Main {
 
-    public static void createIndex() throws IOException {
+    public static void createIndex(String englishStopWordsFile, String greekStopWordsFile, String outDir, String bigCollection) throws IOException {
         BioMedicIndexer index = new BioMedicIndexer();
 
-        String englishStopWordsFile = "./stopwords/stopwordsEn.txt";
         index.loadStopWords(englishStopWordsFile);
-
-        String greekStopWordsFile = "./stopwords/stopwordsGr.txt";
         index.loadStopWords(greekStopWordsFile);
-
-        String smallCollection = "./sample/";
-        String bigCollection = "C://MedicalCollection/";
-        index.indexNXMLDirectory(bigCollection, "./collectionIndex/");
+        
+        IndexResult ir = index.indexNXMLDirectory(bigCollection, outDir);
+        System.out.println(ir.toString());
     }
 
     public static void queryAnswering() throws FileNotFoundException, IOException {
@@ -68,7 +65,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Stemmer.Initialize();
 
-        createIndex();
+        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
         //queryAnswering();
     }
 }

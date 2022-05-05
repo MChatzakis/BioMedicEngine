@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -186,5 +187,41 @@ public class CommonUtilities {
         }
 
         return str;
+    }
+
+    public static String folderSelectionGUI() {
+
+        String filepath = "";
+        JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Select a folder");
+
+        int userSelection = fileChooser.showSaveDialog(null);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            filepath = file.getAbsolutePath();
+            System.out.println("The path of the selected folder is: " + filepath);
+        }
+
+        return filepath;
+    }
+
+    public static String fileSelectionGUI() {
+
+        String filepath = "";
+        JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.setDialogTitle("Select a file");
+        int userSelection = fileChooser.showSaveDialog(null);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            filepath = file.getAbsolutePath();
+            System.out.println("The path of the selected file is: " + filepath);
+        }
+
+        return filepath; //It returns a string in order to use it easily while creating a file
     }
 }

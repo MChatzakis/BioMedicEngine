@@ -3,6 +3,7 @@ package index;
 import generalStructures.Doc;
 import commonUtilities.CommonUtilities;
 import commonUtilities.RafPrinter;
+import generalStructures.IndexResult;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,7 +34,7 @@ import vectorModel.VectorModel;
 public class BioMedicIndexer {
 
     private final int PARTIAL_INDEX_THRESHOLD = 15000;
-    private final int PARTIAL_INDEX_LOGGING_POINT = 2000;
+    private final int PARTIAL_INDEX_LOGGING_POINT = 500;
 
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
@@ -233,12 +234,14 @@ public class BioMedicIndexer {
 
             if (docID1 < docID2) {
                 postNew.writeUTF(line1);
+                line1 = pos1.readUTF();
             } else {
                 postNew.writeUTF(line2);
+                line2 = pos2.readUTF();
             }
 
-            line1 = pos1.readUTF();
-            line2 = pos2.readUTF();
+            //line1 = pos1.readUTF();
+            //line2 = pos2.readUTF();
         }
 
         while (!line1.equals("#stop\n")) {
@@ -289,14 +292,18 @@ public class BioMedicIndexer {
             int comp = currentTermV1.compareTo(currentTermV2);
             if (comp == 0) {
                 mergeContentsAndCopyToRAF(contentsV1, contentsV2, post1, post2, newVoc, newPost);
+                lineV1 = voc1.readUTF();
+                lineV2 = voc2.readUTF();
             } else if (comp > 0) {
                 copyContentsToRAF(contentsV1, post1, newVoc, newPost);
+                lineV1 = voc1.readUTF();
             } else {
                 copyContentsToRAF(contentsV2, post2, newVoc, newPost);
+                lineV2 = voc2.readUTF();
             }
 
-            lineV1 = voc1.readUTF();
-            lineV2 = voc2.readUTF();
+            //lineV1 = voc1.readUTF();
+            //lineV2 = voc2.readUTF();
         }
 
         while (!lineV1.equals("#end")) {
@@ -358,7 +365,7 @@ public class BioMedicIndexer {
         stopWords.addAll(fileStopWords);
     }
 
-    public void indexNXMLDirectory(String directoryBasePath, String outputDirectoryPath) throws IOException {
+    public IndexResult indexNXMLDirectory(String directoryBasePath, String outputDirectoryPath) throws IOException {
 
         ArrayList<PlotPoint> memoryPerDocPlot = new ArrayList<>();
         ArrayList<PlotPoint> timePerDocPlot = new ArrayList<>();
@@ -368,7 +375,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 20000);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 1000);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -408,7 +415,7 @@ public class BioMedicIndexer {
             documentsRAF.writeUTF(docLine);
         }
 
-        createPartialFiles(partialCounter++, partialFilesDirectory, partialVocabsFilenames); //write the last files
+        createPartialFiles(partialCounter++, partialFilesDirectory, partialVocabsFilenames);
 
         documentsRAF.writeUTF("#end");
         documentsRAF.close();
@@ -433,41 +440,28 @@ public class BioMedicIndexer {
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
 
+        IndexResult ir = new IndexResult(timeElapsed, partitioningTimeElapsed, mergingTimeElapsed, vmTimeElapsed, PARTIAL_INDEX_THRESHOLD, documentCounter, directoryBasePath, outputDirectoryPath);
+
         // Part4. Create Plots and Log the BioMedicIndexer results
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectoryPath + "log_report.txt"));
-
-        writer.write("========= BioMedic Indexer Results =========\n");
-        writer.write("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD + "\n");
-        writer.write("Directory of documents indexed: " + directoryBasePath + "\n");
-        writer.write("Directory of indexer output: " + outputDirectoryPath + "\n");
-        writer.write("Total Documents Indexed: " + documentCounter + "\n");
-        writer.write("Time Elapsed for Partitioning Phase (seconds): " + partitioningTimeElapsed / 1000000000.0 + "\n");
-        writer.write("Time Elapsed for Merging Phase (seconds): " + mergingTimeElapsed / 1000000000.0 + "\n");
-        writer.write("Time Elapsed for Vector Calculation phase (seconds): " + vmTimeElapsed / 1000000000.0 + "\n");
-        writer.write("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0 + "\n");
-        writer.write("=======================================\n");
+        writer.write(ir.toString());
         writer.close();
 
         PlotGenerator pg = new PlotGenerator();
         pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
         pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Docs", "Time (seconds)");
 
-        System.out.println("========= BioMedic Indexer Results =========");
-        System.out.println("Threshold of terms: " + PARTIAL_INDEX_THRESHOLD);
-        System.out.println("Directory of documents indexed: " + directoryBasePath);
-        System.out.println("Directory of indexer output: " + outputDirectoryPath);
-        System.out.println("Total Documents Indexed: " + documentCounter);
-        System.out.println("Time Elapsed for Partitioning Phase (seconds): " + partitioningTimeElapsed / 1000000000.0);
-        System.out.println("Time Elapsed for Merging Phase (seconds): " + mergingTimeElapsed / 1000000000.0);
-        System.out.println("Time Elapsed for Vector Calculation phase (seconds): " + vmTimeElapsed / 1000000000.0);
-        System.out.println("Total Time Elapsed (seconds): " + timeElapsed / 1000000000.0);
-        System.out.println("=======================================");
+        pg.generatePRPlot(memoryPerDocPlot.subList(0, 10), outputDirectoryPath + "memory_sample", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
+        pg.generatePRPlot(timePerDocPlot.subList(0, 10), outputDirectoryPath + "time_sample", "Time passed by BioMedic Indexer", "Docs", "Time (seconds)");
+
+        //System.out.println(ir.toString());
 
         //RafPrinter.printRaf(outputDirectoryPath + "vocabulary.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "documents.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "postings.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "vectors.txt");
-
+        
+        return ir;
     }
 
     public void readNXMLFile(Doc doc) throws IOException {
