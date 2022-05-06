@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
+import mitos.stemmer.Stemmer;
 
 /**
  *
@@ -145,6 +146,35 @@ public class BioMedicRetriever {
         return dotProduct / (norm * queryNorm); //cosSIm
     }
 
+    private double calculateScore(Doc d, TreeMap<String, Double> queryTermsTF, double queryNorm, String topic) throws IOException {
+        //1. traverse treemap and find the dot_p of every matching terms:
+        double dotProduct = 0;
+        for (Map.Entry<String, Double> entry : queryTermsTF.entrySet()) {
+            double qTF = entry.getValue();
+            String termVal = entry.getKey();
+            if (vocabulary.containsKey(termVal)) {
+                SearchTerm c = vocabulary.get(termVal);
+                double iDF = CommonUtilities.getIDF(c.getDf(), totalDocuments);
+
+                double dTF = getDocumentTFOfTerm(d, termVal);
+
+                double doc_i = dTF * iDF;
+                double query_i = qTF * iDF;
+
+                dotProduct += (doc_i * query_i);
+            }
+        }
+
+        //2. get norm of doc d
+        long pos = docNormsPairs.get(d.getId());
+        normsRaf.seek(pos);
+        String l = normsRaf.readUTF(); //no good but I guess its fine?
+
+        double norm = Double.parseDouble((l.split(" "))[1]);
+
+        return dotProduct / (norm * queryNorm);
+    }
+
     private void initializeDocNormsPairs(String filename) throws FileNotFoundException, IOException {
         docNormsPairs = new TreeMap<>();
         try ( BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -258,6 +288,7 @@ public class BioMedicRetriever {
     }
 
     public SearchResult findRelevantDocumentsOfQuery(String query) throws IOException {
+        long startTime = System.nanoTime();
         ArrayList<DocResult> results = new ArrayList<>();
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
@@ -275,26 +306,31 @@ public class BioMedicRetriever {
                 return -1 * Double.compare(o1.getScore(), o2.getScore());
             }
         });
-
-        return new SearchResult(results, 0.0);
+        long endTime = System.nanoTime();
+        long responseTime = endTime - startTime;
+        return new SearchResult(results, responseTime);
 
     }
 
     public SearchResult findRelevantTopic(String query, String topic) throws IOException {
+        long startTime = System.nanoTime();
         ArrayList<DocResult> results = new ArrayList<>();
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
+        String stemmedTopic = Stemmer.Stem(topic);
+
         double queryNorm = findQueryNorm(queryTermsTF);
 
         for (Doc d : relevantDocuments) {
-            double score = calculateScore(d, queryTermsTF, queryNorm);
-
-            results.add(new DocResult(d, score, ""));
-
+            double score = calculateScore(d, queryTermsTF, queryNorm, stemmedTopic);
+            String snippet = "";
+            results.add(new DocResult(d, score, snippet));
         }
 
-        return new SearchResult(results, 0.0);
+        long endTime = System.nanoTime();
+        long responseTime = endTime - startTime;
+        return new SearchResult(results, responseTime);
 
     }
 

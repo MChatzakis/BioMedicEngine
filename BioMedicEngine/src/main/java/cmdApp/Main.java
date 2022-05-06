@@ -21,11 +21,10 @@ import retrieval.BioMedicRetriever;
  */
 public class Main {
 
-    
-    public static void bioMedicCLI(String args){
-        CommandLineParser parser = new DefaultParser();
+    public static void bioMedicCLI(String args) {
+        //CommandLineParser parser = new DefaultParser();
     }
-    
+
     public static void createIndex(String englishStopWordsFile, String greekStopWordsFile, String outDir, String bigCollection) throws IOException {
         BioMedicIndexer index = new BioMedicIndexer();
 
@@ -59,7 +58,7 @@ public class Main {
                 System.out.println(dr.toString());
             }
 
-            System.out.println("Response Time: " + results.getResponseTime());
+            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
         }
 
     }
@@ -81,7 +80,7 @@ public class Main {
                 break;
             }
 
-            System.out.println(">>> Type an medical type (diagnosis, test, treatment)");
+            System.out.println(">>> Type a medical type (diagnosis, test, treatment)");
             String type = sc.nextLine();
 
             SearchResult results = bmr.findRelevantTopic(inputQuery, type);
@@ -89,7 +88,7 @@ public class Main {
                 System.out.println(dr.toString());
             }
 
-            System.out.println("Response Time: " + results.getResponseTime());
+            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
         }
     }
 
