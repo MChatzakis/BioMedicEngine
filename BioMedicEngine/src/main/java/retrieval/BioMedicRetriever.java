@@ -280,4 +280,22 @@ public class BioMedicRetriever {
 
     }
 
+    public SearchResult findRelevantTopic(String query, String topic) throws IOException {
+        ArrayList<DocResult> results = new ArrayList<>();
+        TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
+        ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
+
+        double queryNorm = findQueryNorm(queryTermsTF);
+
+        for (Doc d : relevantDocuments) {
+            double score = calculateScore(d, queryTermsTF, queryNorm);
+
+            results.add(new DocResult(d, score, ""));
+
+        }
+
+        return new SearchResult(results, 0.0);
+
+    }
+
 }
