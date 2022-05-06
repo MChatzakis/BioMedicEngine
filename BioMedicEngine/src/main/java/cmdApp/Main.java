@@ -25,22 +25,19 @@ public class Main {
 
         index.loadStopWords(englishStopWordsFile);
         index.loadStopWords(greekStopWordsFile);
-        
+
         IndexResult ir = index.indexNXMLDirectory(bigCollection, outDir);
         System.out.println(ir.toString());
     }
 
-    public static void queryAnswering() throws FileNotFoundException, IOException {
-        String vocabularyFile = "./collectionIndex/vocabulary.txt";
-        String documentsFile = "./collectionIndex/documents.txt";
-        String postingFile = "./collectionIndex/postings.txt";
-
-        String normsFile = "./collectionIndex/postings.txt";
-        String mappingsFile = "./collectionIndex/postings.txt";
+    public static void queryAnswering(String basePath) throws FileNotFoundException, IOException {
+        String vocabularyFile = basePath + "vocabulary.txt";
+        String documentsFile = basePath + "documents.txt";
+        String postingFile = basePath + "postings.txt";
+        String normsFile = basePath + "vectors.txt";
+        String mappingsFile = basePath + "mappings.txt";
 
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
-
-        bmr.loadVocabulary();
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -52,11 +49,10 @@ public class Main {
             }
 
             SearchResult results = bmr.findRelevantDocumentsOfQuery(inputQuery);
-            for (Map.Entry<Double, DocResult> entry : results.getRelevantDocuments().entrySet()) {
-                double score = entry.getKey();
-                DocResult docResult = entry.getValue();
-                System.out.println(docResult.toString());
+            for (DocResult dr : results.getRelevantDocuments()) {
+                System.out.println(dr.toString());
             }
+
             System.out.println("Response Time: " + results.getResponseTime());
         }
 
@@ -65,7 +61,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Stemmer.Initialize();
 
-        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
-        //queryAnswering();
+        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
+        queryAnswering(/*"C://Users/manos/Desktop/tmpDir/"*/"./collectionIndex/");
+
     }
 }

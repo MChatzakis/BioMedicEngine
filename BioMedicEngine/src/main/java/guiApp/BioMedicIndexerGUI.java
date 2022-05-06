@@ -55,7 +55,7 @@ public class BioMedicIndexerGUI extends JFrame {
         setBounds(100, 90, w, h);
 
         generalPanel = getContentPane();
-        generalPanel.setLayout(new GridLayout(0, 3));
+        generalPanel.setLayout(new GridLayout(0, 1));
 
         addSubmitButtonFunc();
         addDirButtonsFunc();
@@ -130,6 +130,6 @@ public class BioMedicIndexerGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        new BioMedicIndexerGUI(500, 150);
+        new BioMedicIndexerGUI(500, 250);
     }
 }

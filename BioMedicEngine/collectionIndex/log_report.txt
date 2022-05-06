@@ -1,0 +1,10 @@
+========= BioMedic Indexer Results =========
+Threshold of terms: 15000
+Directory of documents indexed: C://MedicalCollection/
+Directory of indexer output: ./collectionIndex/
+Total Documents Indexed: 50
+Time Elapsed for Partitioning Phase (seconds): 40.9139104
+Time Elapsed for Merging Phase (seconds): 0.0214548
+Time Elapsed for Norm Calculation phase (seconds): 1.9997868
+Total Time Elapsed (seconds): 42.9353754
+=======================================

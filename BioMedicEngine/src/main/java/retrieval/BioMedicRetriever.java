@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -47,18 +48,42 @@ public class BioMedicRetriever {
         int pos = CommonUtilities.KnuthMorrisPrattSearch(query.toCharArray(), rawCarr);
 
         if (pos < 0) {
-            return "";
-        }
-        
-        int start=pos,end = pos+query.toCharArray().length;
-        while(pos > 0){
-            start = pos;
-            
-            pos--;
-            
+            return "empty";
         }
 
-        return "";
+        int start = pos, end = pos + query.toCharArray().length;
+        int words2goBack = 1;
+        int wordsPassed = 0;
+        int words2goForth = 1;
+        while (pos > 0) {
+            start = pos;
+            if (rawCarr[pos] == ' ') {
+                wordsPassed++;
+            }
+            pos--;
+
+            if (wordsPassed == words2goBack) {
+                break;
+            }
+
+        }
+
+        wordsPassed = 0;
+        while (pos < rawCarr.length) {
+            end = pos;
+            if (rawCarr[pos] == ' ') {
+                wordsPassed++;
+            }
+            pos++;
+
+            if (wordsPassed == words2goForth) {
+                break;
+            }
+
+        }
+
+        return rawC.substring(start, end);
+
     }
 
     private double getDocumentTFOfTerm(Doc d, String str) throws IOException {
@@ -110,10 +135,13 @@ public class BioMedicRetriever {
         //2. get norm of doc d
         long pos = docNormsPairs.get(d.getId());
         normsRaf.seek(pos);
+        //System.out.println("?!?!?!"+pos);
         String l = normsRaf.readUTF(); //no good but I guess its fine?
-        double norm = Double.parseDouble((l.split(" "))[1]);
-        //double norm = Math.sqrt(Double.parseDouble((l.split(" "))[1]));
 
+        double norm = Double.parseDouble((l.split(" "))[1]);
+        //System.out.println("AA: " + dotProduct);
+        //System.out.println("CC:" + norm * queryNorm);
+        //System.out.println("DD:" + dotProduct / (norm * queryNorm));
         return dotProduct / (norm * queryNorm); //cosSIm
     }
 
@@ -132,6 +160,7 @@ public class BioMedicRetriever {
 
     private void traversePostingsOfTerm(ArrayList<Doc> relevantDocs, SearchTerm term) throws IOException {
         postingRaf.seek(term.getFp());
+        //System.out.println("FP " + term.getFp());
         String line;
 
         while ((line = postingRaf.readUTF()) != null) { //this is just a dummy != to read the value inside while.
@@ -139,7 +168,9 @@ public class BioMedicRetriever {
                 break;
             }
 
+            //System.out.println(line);
             String[] contents = line.split(" ");
+
             long docPointer = Long.parseLong(contents[3]);
 
             documentsRaf.seek(docPointer);
@@ -149,7 +180,9 @@ public class BioMedicRetriever {
             String path = docContents[1];
             Doc doc = new Doc(id, path);
 
+            //System.out.println("haha");
             if (!relevantDocs.contains(doc)) {
+                //System.out.println(doc);
                 relevantDocs.add(doc);
             }
         }
@@ -201,10 +234,10 @@ public class BioMedicRetriever {
             long ptr = Long.parseLong(contents[2]);
 
             vocabulary.put(value, new SearchTerm(value, df, ptr));
-            System.out.println("Loaded term " + value);
+            System.out.println("Loaded term " + value + " with df " + df);
         }
         vocabularyRaf.seek(0);
-
+        //System.out.println(vocabulary);
         System.out.println(">>Total terms loaded: " + vocabulary.size());
         totalTerms = vocabulary.size();
     }
@@ -212,7 +245,6 @@ public class BioMedicRetriever {
     public ArrayList<Doc> findRelevantDocumentsOfQuery(ArrayList<String> queryTerms) throws IOException {
         ArrayList<Doc> relevantDocs = new ArrayList<>();
 
-        //ArrayList<String> queryTerms = queryProcessor.parseQuery(query);
         for (String cterm : queryTerms) {
             if (!vocabulary.containsKey(cterm)) {
                 continue;
@@ -226,17 +258,23 @@ public class BioMedicRetriever {
     }
 
     public SearchResult findRelevantDocumentsOfQuery(String query) throws IOException {
-        TreeMap<Double, DocResult> results = new TreeMap<>(Collections.reverseOrder());
+        ArrayList<DocResult> results = new ArrayList<>();
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
-
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
 
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);
-            results.put(score, new DocResult(d, score));
+            String snippet = findSnippet(d, query);
+            results.add(new DocResult(d, score, snippet));
         }
+
+        Collections.sort(results, new Comparator<DocResult>() {
+            public int compare(DocResult o1, DocResult o2) {
+                return -1 * Double.compare(o1.getScore(), o2.getScore());
+            }
+        });
 
         return new SearchResult(results, 0.0);
 

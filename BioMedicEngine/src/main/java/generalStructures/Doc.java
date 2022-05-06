@@ -18,7 +18,7 @@ public class Doc {
     private long norm;
     private String path;
     private long docFilePointer;
-    
+
     public Doc(int id, String path) {
         this.id = id;
         this.path = path;
@@ -29,6 +29,6 @@ public class Doc {
     }
 
     public String toString() {
-        return "{" + id + " => " + path + "=> " + norm + "}";
+        return "{" + id + "," + path + "}";
     }
 }

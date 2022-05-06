@@ -4,6 +4,7 @@
  */
 package generalStructures;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 import lombok.Data;
 
@@ -14,10 +15,11 @@ import lombok.Data;
 @Data
 public class SearchResult {
 
-    private TreeMap<Double, DocResult> relevantDocuments;
+    //private TreeMap<Double, DocResult> relevantDocuments;
+    ArrayList<DocResult> relevantDocuments;
     private double responseTime;
 
-    public SearchResult(TreeMap<Double, DocResult> relevantDocuments, double responseTime) {
+    public SearchResult(/*TreeMap<Double, DocResult>*/ArrayList<DocResult> relevantDocuments, double responseTime) {
         this.responseTime = responseTime;
         this.relevantDocuments = relevantDocuments;
     }

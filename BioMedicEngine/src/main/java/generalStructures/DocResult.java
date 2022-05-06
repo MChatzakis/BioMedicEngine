@@ -23,7 +23,7 @@ public class DocResult {
         this.snippet = snippet;
     }
 
-    public DocResult(Doc doc, double socre) {
+    public DocResult(Doc doc, double score) {
         this.doc = doc;
         this.score = score;
 
