@@ -12,7 +12,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import mitos.stemmer.Stemmer;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import retrieval.BioMedicRetriever;
 
 /**
@@ -21,8 +25,22 @@ import retrieval.BioMedicRetriever;
  */
 public class Main {
 
-    public static void bioMedicCLI(String args) {
-        //CommandLineParser parser = new DefaultParser();
+    public static void bioMedicCLI(String []  args) throws ParseException {
+        CommandLineParser parser = new DefaultParser();
+        Options options = new Options();
+
+        options.addOption("m", true, "BioMedic Engine Mode (indexer, retriever, topicRetriver)");
+
+        options.addOption("input", true, "BioMedic Indexer input directory");
+        options.addOption("output", true, "BioMedic Indexer output directory");
+        options.addOption("grStopwords", true, "BioMedic Indexer greek stopwords");
+        options.addOption("enStopwords", true, "BioMedic Indexer english stopwords");
+        
+        options.addOption("collection", true, "BioMedic Query answering collection directory");
+                
+        CommandLine cmd = parser.parse(options, args);
+        
+
     }
 
     public static void createIndex(String englishStopWordsFile, String greekStopWordsFile, String outDir, String bigCollection) throws IOException {
