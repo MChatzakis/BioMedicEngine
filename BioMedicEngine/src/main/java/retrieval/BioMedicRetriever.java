@@ -96,7 +96,7 @@ public class BioMedicRetriever {
         postingRaf.seek(t.getFp());
         String line;
         while ((line = postingRaf.readUTF()) != null) {
-            if (line.equals("#end") || line.equals("#stop \n")) {
+            if (line.equals("#end") || line.equals("#stop\n")) {
                 break;
             }
 
@@ -147,6 +147,8 @@ public class BioMedicRetriever {
     }
 
     private double calculateScore(Doc d, TreeMap<String, Double> queryTermsTF, double queryNorm, String topic) throws IOException {
+        //! Idea: Give higher score to the docs that contain the word "topic"
+
         //1. traverse treemap and find the dot_p of every matching terms:
         double dotProduct = 0;
         for (Map.Entry<String, Double> entry : queryTermsTF.entrySet()) {
@@ -314,23 +316,28 @@ public class BioMedicRetriever {
 
     public SearchResult findRelevantTopic(String query, String topic) throws IOException {
         long startTime = System.nanoTime();
-        ArrayList<DocResult> results = new ArrayList<>();
+
+        ArrayList<DocResult> rawResults = new ArrayList<>();
+        
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
-        String stemmedTopic = Stemmer.Stem(topic);
+        TreeMap<String, Double> topicTermsTF = queryProcessor.parseQueryFindTF(topic);
+        ArrayList<Doc> topicDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(topicTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
-
+        
+        relevantDocuments.retainAll(topicDocuments);
+        
         for (Doc d : relevantDocuments) {
-            double score = calculateScore(d, queryTermsTF, queryNorm, stemmedTopic);
+            double score = calculateScore(d, queryTermsTF, queryNorm);
             String snippet = "";
-            results.add(new DocResult(d, score, snippet));
+            rawResults.add(new DocResult(d, score, snippet));
         }
 
         long endTime = System.nanoTime();
         long responseTime = endTime - startTime;
-        return new SearchResult(results, responseTime);
+        return new SearchResult(rawResults, responseTime);
 
     }
 

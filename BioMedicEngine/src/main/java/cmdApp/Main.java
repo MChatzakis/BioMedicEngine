@@ -96,9 +96,9 @@ public class Main {
 
         Stemmer.Initialize();
 
-        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
+        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
         //queryAnsweringSimple(/*"C://Users/manos/Desktop/tmpDir/"*/"./collectionIndex/");
-        queryAnsweringTopics("./collectionIndex/");
+        //queryAnsweringTopics("./collectionIndex/");
 
     }
 }

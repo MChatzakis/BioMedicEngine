@@ -34,7 +34,7 @@ import vectorModel.VectorModel;
 public class BioMedicIndexer {
 
     private final int PARTIAL_INDEX_THRESHOLD = 15000;
-    private final int PARTIAL_INDEX_LOGGING_POINT = 100;
+    private final int PARTIAL_INDEX_LOGGING_POINT = 5000;
 
     private ArrayList<String> stopWords;
     private final String[] stopPoints = {".", ",", "(", ")", "[", "]", "\'", "\"", ";", ":", "?", "*", "&", "#", "@", "-", "!", "~", "<", ">", "{", "}", "=", "|", "\\", "/", "%", "$", "+"};
@@ -376,7 +376,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = "collectionIndex/partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath).subList(0, 50);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);//.subList(0, 1500);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -408,7 +408,7 @@ public class BioMedicIndexer {
                 System.out.println(">>Proccessed " + documentCounter + " of " + filepaths.size() + " documents. Used Memory: " + usedMemory + " MBytes. Time passed (seconds): " + timePassed);
 
                 memoryPerDocPlot.add(new PlotPoint(documentCounter, usedMemory));
-                timePerDocPlot.add(new PlotPoint(documentCounter, timePassed));
+                timePerDocPlot.add(new PlotPoint(documentCounter, timePassed / 3600));
             }
 
             //write stuff to file
@@ -449,14 +449,14 @@ public class BioMedicIndexer {
         writer.close();
 
         PlotGenerator pg = new PlotGenerator();
-        //pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
-        //pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Docs", "Time (seconds)");
+        pg.generatePRPlot(memoryPerDocPlot, outputDirectoryPath + "memory", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
+        pg.generatePRPlot(timePerDocPlot, outputDirectoryPath + "time", "Time passed by BioMedic Indexer", "Docs", "Time (hours)");
 
         //pg.generatePRPlot(memoryPerDocPlot.subList(0, 10), outputDirectoryPath + "memory_sample", "Memory Used by BioMedic Indexer", "Docs", "Memory (MBytes)");
         //pg.generatePRPlot(timePerDocPlot.subList(0, 10), outputDirectoryPath + "time_sample", "Time passed by BioMedic Indexer", "Docs", "Time (seconds)");
         //System.out.println(ir.toString());
         //RafPrinter.printRaf(outputDirectoryPath + "vocabulary.txt");
-        RafPrinter.printRaf(outputDirectoryPath + "documents.txt");
+        //RafPrinter.printRaf(outputDirectoryPath + "documents.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "postings.txt");
         //RafPrinter.printRaf(outputDirectoryPath + "vectors.txt");
         return ir;
