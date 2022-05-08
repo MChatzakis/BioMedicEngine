@@ -25,21 +25,55 @@ import retrieval.BioMedicRetriever;
  */
 public class Main {
 
-    public static void bioMedicCLI(String []  args) throws ParseException {
+    public static void bioMedicCLI(String[] args) throws ParseException, IOException {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 
-        options.addOption("m", true, "BioMedic Engine Mode (indexer, retriever, topicRetriver)");
+        options.addOption("mode", true, "BioMedic Engine Mode (indexer, retriever, topicRetriver)");
 
         options.addOption("input", true, "BioMedic Indexer input directory");
         options.addOption("output", true, "BioMedic Indexer output directory");
         options.addOption("grStopwords", true, "BioMedic Indexer greek stopwords");
         options.addOption("enStopwords", true, "BioMedic Indexer english stopwords");
-        
+
         options.addOption("collection", true, "BioMedic Query answering collection directory");
-                
+
         CommandLine cmd = parser.parse(options, args);
-        
+
+        if (cmd.hasOption("mode")) {
+            String mode = cmd.getOptionValue("mode");
+
+            switch (mode) {
+            case "indexer":
+                
+                break;
+            case "retriever":
+                if (cmd.hasOption("collection")) {
+                    String collectionPath = cmd.getOptionValue("collection");
+                    queryAnsweringSimple(collectionPath);
+                } else {
+                    System.out.println("BioMedic Engine requires a directory to load the index.");
+                    System.exit(-1);
+                }
+
+                break;
+            case "topicRetriever":
+                if (cmd.hasOption("collection")) {
+                    String collectionPath = cmd.getOptionValue("collection");
+                    queryAnsweringTopics(collectionPath);
+                } else {
+                    System.out.println("BioMedic Engine requires a directory to load the index.");
+                    System.exit(-1);
+                }
+                break;
+            default:
+                System.out.println("BioMedic Engine does not support mode with name " + mode + "(modes: indexer, retriever, topicRetriever), exiting... ");
+
+            }
+        } else {
+            System.out.println("Wrong mode argument, exiting...");
+            System.exit(-1);
+        }
 
     }
 
