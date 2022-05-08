@@ -45,7 +45,18 @@ public class Main {
 
             switch (mode) {
             case "indexer":
-                
+                if (cmd.hasOption("input") && cmd.hasOption("output") && cmd.hasOption("grStopwords")
+                        && cmd.hasOption("enStopwords")) {
+                    String input = cmd.getOptionValue("input");
+                    String output = cmd.getOptionValue("output");
+                    String gr = cmd.getOptionValue("grStopwords");
+                    String en = cmd.getOptionValue("enStopwords");
+
+                    createIndex(input, output, gr, en);
+                } else {
+                    System.out.println("BioMedic Engine requires all indexing arguments. Exiting...");
+                    System.exit(-1);
+                }
                 break;
             case "retriever":
                 if (cmd.hasOption("collection")) {
@@ -147,8 +158,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Stemmer.Initialize();
-
-        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
+        
+        //System.out.println("Hi!");
+        bioMedicCLI(args);
+        
+        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
         //queryAnsweringSimple(/*"C://Users/manos/Desktop/tmpDir/"*/"./collectionIndex/");
         //queryAnsweringTopics("./collectionIndex/");
 

@@ -34,4 +34,39 @@
         </dependency>
 
     </dependencies>
+    
+    <build>
+        <defaultGoal>compile</defaultGoal>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>cmdApp.Main</mainClass>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <BuildTime>${maven.build.timestamp}</BuildTime>
+                        </manifestEntries>
+                    </archive>
+                    <descriptors>
+                        <descriptor>src/main/assembly/exejar.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-my-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>
