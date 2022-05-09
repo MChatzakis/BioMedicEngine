@@ -27,8 +27,9 @@ import plot.PlotPoint;
 import vectorModel.VectorModel;
 
 /**
- *
- * @author Manos Chatzakis
+ * BioMedicIndexer class contains methods to index a directory.
+ * 
+ * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 @Data
 public class BioMedicIndexer {
@@ -155,8 +156,8 @@ public class BioMedicIndexer {
                 }
 
                 if (docPointerPairs.get(docID) == null) {
-                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                    System.out.println(docID);
+                    //System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                    //System.out.println(docID);
                     System.out.println(docPointerPairs);
                     System.exit(-1);
                 }

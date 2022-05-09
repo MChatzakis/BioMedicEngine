@@ -308,7 +308,6 @@ public class BioMedicRetriever {
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
-        System.out.println("gtxs " + queryNorm);
 
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);
@@ -334,7 +333,13 @@ public class BioMedicRetriever {
 
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
-
+        
+        for (String s : queryTermsTF.keySet()) {
+            if (!vocabulary.containsKey(s)) {
+                queryTermsTF.remove(s);
+            }
+        }
+        
         TreeMap<String, Double> topicTermsTF = queryProcessor.parseQueryFindTF(topic);
         ArrayList<Doc> topicDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(topicTermsTF.keySet()));
 

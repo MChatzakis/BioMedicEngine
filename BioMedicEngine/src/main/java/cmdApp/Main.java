@@ -21,8 +21,8 @@ import org.apache.commons.cli.ParseException;
 import retrieval.BioMedicRetriever;
 
 /**
- *
- * @author manos
+ * This class contains the command line interface of BioMedic indexer.
+ * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 public class Main {
 
@@ -189,13 +189,12 @@ public class Main {
 
         Stemmer.Initialize();
 
-        //System.out.println("Hi!");
-        //bioMedicCLI(args);
-        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://Users/manos/Desktop/newCollection/", "C://MedicalCollection/");
+        bioMedicCLI(args);
+        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://Users/manos/Desktop/newCollection/", "C://MedicalCollection/");
         //queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
-        //queryAnsweringSimple("C:/Users/manos/Desktop/collectionIndex/");
-        //queryAnsweringTopics("C://Users/manos/Desktop/simple_example/");
+        //queryAnsweringSimple("C:/Users/manos/Desktop/newCollection/");
+        //queryAnsweringTopics("C:/Users/manos/Desktop/newCollection/");
         
-        //experimentQueries("C:/Users/manos/Desktop/collectionIndex/");
+        //experimentQueries("C://Users/manos/Desktop/newCollection/");
     }
 }
