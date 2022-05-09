@@ -22,6 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
+import javax.swing.text.Document;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+//import org.w3c.dom.Document;  
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import java.io.File;
 
 /**
  *
@@ -224,4 +233,65 @@ public class CommonUtilities {
 
         return filepath; //It returns a string in order to use it easily while creating a file
     }
+
+    public static ArrayList<String> readXML(String filename, String tagName, String sel) {
+        ArrayList<String> res = new ArrayList<>();
+        try {
+            File file = new File(filename);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            org.w3c.dom.Document doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+            //System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
+            NodeList nodeList = doc.getElementsByTagName(tagName);
+
+            for (int itr = 0; itr < nodeList.getLength(); itr++) {
+                Node node = nodeList.item(itr);
+                System.out.println(node.getAttributes().getNamedItem("type"));
+                //System.out.println("\nNode Name :" + node.getNodeName());
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) node;
+                    /*System.out.println("Student id: " + eElement.getElementsByTagName("id").item(0).getTextContent());
+                    System.out.println("First Name: " + eElement.getElementsByTagName("firstname").item(0).getTextContent());
+                    System.out.println("Last Name: " + eElement.getElementsByTagName("lastname").item(0).getTextContent());
+                    System.out.println("Subject: " + eElement.getElementsByTagName("subject").item(0).getTextContent());
+                    System.out.println("Marks: " + eElement.getElementsByTagName("marks").item(0).getTextContent());*/
+                    String s = eElement.getElementsByTagName(sel).item(0).getTextContent();
+                    //System.out.println(s);
+                    res.add(s);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return res;
+    }
+
+    public static ArrayList<String> readXMLattr(String filename, String tagName, String sel) {
+        ArrayList<String> res = new ArrayList<>();
+        try {
+            File file = new File(filename);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            org.w3c.dom.Document doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+            //System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
+            NodeList nodeList = doc.getElementsByTagName(tagName);
+
+            for (int itr = 0; itr < nodeList.getLength(); itr++) {
+                Node node = nodeList.item(itr);
+                res.add(node.getAttributes().getNamedItem(sel).toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return res;
+    }
+
 }

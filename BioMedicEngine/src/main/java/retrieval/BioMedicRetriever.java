@@ -200,7 +200,7 @@ public class BioMedicRetriever {
                 break;
             }
 
-            //System.out.println(line);
+            System.out.println(line);
             String[] contents = line.split(" ");
 
             long docPointer = Long.parseLong(contents[3]);
@@ -293,6 +293,13 @@ public class BioMedicRetriever {
         long startTime = System.nanoTime();
         ArrayList<DocResult> results = new ArrayList<>();
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
+
+        for (String s : queryTermsTF.keySet()) {
+            if (!vocabulary.containsKey(s)) {
+                queryTermsTF.remove(s);
+            }
+        }
+
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
@@ -318,7 +325,7 @@ public class BioMedicRetriever {
         long startTime = System.nanoTime();
 
         ArrayList<DocResult> rawResults = new ArrayList<>();
-        
+
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
@@ -326,9 +333,9 @@ public class BioMedicRetriever {
         ArrayList<Doc> topicDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(topicTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
-        
+
         relevantDocuments.retainAll(topicDocuments);
-        
+
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);
             String snippet = "";

@@ -1,5 +1,6 @@
 package cmdApp;
 
+import commonUtilities.CommonUtilities;
 import generalStructures.Doc;
 import generalStructures.DocResult;
 import generalStructures.IndexResult;
@@ -155,16 +156,46 @@ public class Main {
         }
     }
 
+    public static void experimentQueries(String basePath) throws IOException {
+        ArrayList<String> queries = CommonUtilities.readXML("corpus/topics.xml", "topic", "summary");
+        ArrayList<String> types = CommonUtilities.readXMLattr("corpus/topics.xml", "topic", "type");
+
+        System.out.println(queries);
+        System.out.println(types);
+
+        String vocabularyFile = basePath + "vocabulary.txt";
+        String documentsFile = basePath + "documents.txt";
+        String postingFile = basePath + "postings.txt";
+        String normsFile = basePath + "vectors.txt";
+        String mappingsFile = basePath + "mappings.txt";
+
+        ArrayList<Double> times = new ArrayList<>();
+
+        BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
+
+        for (int i = 0; i < queries.size(); i++) {
+            String q = queries.get(i);
+            String t = types.get(i);
+            SearchResult results = bmr.findRelevantTopic(q, t);
+            //System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
+
+            times.add(results.getResponseTime() / 1000000000.0);
+        }
+
+        System.out.println(times);
+    }
+
     public static void main(String[] args) throws Exception {
 
         Stemmer.Initialize();
 
         //System.out.println("Hi!");
         //bioMedicCLI(args);
-
         //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
-        queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
-        
+        //queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
+        //queryAnsweringSimple("C:/Users/manos/Desktop/collectionIndex/");
         //queryAnsweringTopics("C://Users/manos/Desktop/simple_example/");
+        
+        experimentQueries("C:/Users/manos/Desktop/collectionIndex/");
     }
 }

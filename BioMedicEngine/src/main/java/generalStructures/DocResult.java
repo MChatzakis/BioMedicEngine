@@ -31,7 +31,7 @@ public class DocResult {
     }
 
     public String toString() {
-        return doc + " score: " + score + " snippet: " + snippet;
+        return doc + " score: " + score;/* + " snippet: " + snippet;*/
     }
 
 }
