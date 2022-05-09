@@ -200,8 +200,12 @@ public class BioMedicRetriever {
                 break;
             }
 
-            System.out.println(line);
+            //System.out.println(line);
             String[] contents = line.split(" ");
+
+            if (contents[3] == null || contents[3].equals("null")) {
+                continue;
+            }
 
             long docPointer = Long.parseLong(contents[3]);
 
@@ -229,9 +233,10 @@ public class BioMedicRetriever {
             if (vocabulary.containsKey(queryTerm)) {
                 SearchTerm t = vocabulary.get(queryTerm);
                 int df = t.getDf();
+                //System.out.println("td = " + totalDocuments);
                 double iDF = CommonUtilities.getIDF(df, totalDocuments);
-
-                norm += (iDF * queryTF) * (iDF * queryTF); //na checkarw oti einai swsto auto
+                //System.out.println("df = " + df + " idf = " + iDF);
+                norm += (iDF * queryTF) * (iDF * queryTF); //na checkarw oti einai swsto auto OK!
             }
         }
 
@@ -303,6 +308,7 @@ public class BioMedicRetriever {
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
         double queryNorm = findQueryNorm(queryTermsTF);
+        System.out.println("gtxs " + queryNorm);
 
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);

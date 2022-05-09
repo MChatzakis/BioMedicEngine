@@ -154,6 +154,13 @@ public class BioMedicIndexer {
                     positionTags += "_";
                 }
 
+                if (docPointerPairs.get(docID) == null) {
+                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                    System.out.println(docID);
+                    System.out.println(docPointerPairs);
+                    System.exit(-1);
+                }
+
                 String postLine = docID + " " + tf + " " + positionTags + " " + docPointerPairs.get(docID) + " \n";
                 partialPost.writeUTF(postLine);
             }
@@ -172,7 +179,7 @@ public class BioMedicIndexer {
         filenames.add(filenameV);
 
         vocabulary.clear();
-        docPointerPairs.clear();
+        //docPointerPairs.clear();
 
         System.gc(); //den perimena pote oti tha to kanw auto...
     }
@@ -386,7 +393,7 @@ public class BioMedicIndexer {
             Doc doc = new Doc(documentCounter, filepath);
 
             doc.setDocFilePointer(documentsRAF.getFilePointer());
-
+            //System.out.println("doc: " + doc.getId());
             docPointerPairs.put(doc.getId(), doc.getDocFilePointer());
 
             if (vocabulary.size() >= PARTIAL_INDEX_THRESHOLD) {

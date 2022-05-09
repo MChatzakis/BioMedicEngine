@@ -191,11 +191,11 @@ public class Main {
 
         //System.out.println("Hi!");
         //bioMedicCLI(args);
-        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
+        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://Users/manos/Desktop/newCollection/", "C://MedicalCollection/");
         //queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
         //queryAnsweringSimple("C:/Users/manos/Desktop/collectionIndex/");
         //queryAnsweringTopics("C://Users/manos/Desktop/simple_example/");
         
-        experimentQueries("C:/Users/manos/Desktop/collectionIndex/");
+        //experimentQueries("C:/Users/manos/Desktop/collectionIndex/");
     }
 }

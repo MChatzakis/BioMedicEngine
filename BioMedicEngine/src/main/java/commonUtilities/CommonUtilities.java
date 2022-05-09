@@ -109,12 +109,12 @@ public class CommonUtilities {
         return Math.sqrt(sum);
     }
 
-    public static double log2(int N) {
+    public static double log2(double N) {
         return (Math.log(N) / Math.log(2));
     }
 
     public static double getIDF(int df, int N) {
-        return log2(N / df);
+        return log2((N*1.0) / (df*1.0));
     }
 
     public static int KnuthMorrisPrattSearch(char[] pattern, char[] text) {
