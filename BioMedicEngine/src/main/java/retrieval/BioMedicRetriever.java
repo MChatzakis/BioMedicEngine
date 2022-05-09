@@ -23,8 +23,8 @@ import java.util.TreeMap;
 import mitos.stemmer.Stemmer;
 
 /**
- *
- * @author manos
+ * BioMedicRetriever contains all the methods needed to perform query answering over a biomedical document collection
+ * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 public class BioMedicRetriever {
 

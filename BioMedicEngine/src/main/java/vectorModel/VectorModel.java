@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package vectorModel;
 
 import commonUtilities.CommonUtilities;
@@ -16,8 +12,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
- * @author manos
+ * This class contains norm calculations methods based on the DF*iDF principle
+ * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 public class VectorModel {
 

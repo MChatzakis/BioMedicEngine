@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package retrieval;
 
 import commonUtilities.CommonUtilities;
@@ -16,7 +11,7 @@ import java.util.TreeMap;
 import mitos.stemmer.Stemmer;
 
 /**
- *
+ * Query Processor contains the query parsing methods.
  * @author Manos Chatzakis
  */
 public class QueryProcessor {
