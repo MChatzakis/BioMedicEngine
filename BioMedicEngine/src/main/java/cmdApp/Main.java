@@ -33,26 +33,26 @@ public class Main {
 
         options.addOption("input", true, "BioMedic Indexer input directory");
         options.addOption("output", true, "BioMedic Indexer output directory");
-        options.addOption("grStopwords", true, "BioMedic Indexer greek stopwords");
-        options.addOption("enStopwords", true, "BioMedic Indexer english stopwords");
+        options.addOption("gr", true, "BioMedic Indexer greek stopwords");
+        options.addOption("en", true, "BioMedic Indexer english stopwords");
 
         options.addOption("collection", true, "BioMedic Query answering collection directory");
 
         CommandLine cmd = parser.parse(options, args);
-
+        //java -jar BioMedicEngine-1.0-SNAPSHOT-exejar.jar -mode indexer -input C:\Users\manos\Documents\GitHub\BioMedicEngine\BioMedicEngine\sample\ -output C:\Users\manos\Desktop\simple_example\ -gr C:\Users\manos\Documents\GitHub\BioMedicEngine\BioMedicEngine\stopwords\stopwordsGr.txt -en C:\Users\manos\Documents\GitHub\BioMedicEngine\BioMedicEngine\stopwords\stopwordsEn.txt
         if (cmd.hasOption("mode")) {
             String mode = cmd.getOptionValue("mode");
 
             switch (mode) {
             case "indexer":
-                if (cmd.hasOption("input") && cmd.hasOption("output") && cmd.hasOption("grStopwords")
-                        && cmd.hasOption("enStopwords")) {
+                if (cmd.hasOption("input") && cmd.hasOption("output") && cmd.hasOption("gr")
+                        && cmd.hasOption("en")) {
                     String input = cmd.getOptionValue("input");
                     String output = cmd.getOptionValue("output");
-                    String gr = cmd.getOptionValue("grStopwords");
-                    String en = cmd.getOptionValue("enStopwords");
+                    String gr = cmd.getOptionValue("gr");
+                    String en = cmd.getOptionValue("en");
 
-                    createIndex(input, output, gr, en);
+                    createIndex(en, gr, output, input);
                 } else {
                     System.out.println("BioMedic Engine requires all indexing arguments. Exiting...");
                     System.exit(-1);
@@ -158,13 +158,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Stemmer.Initialize();
-        
-        //System.out.println("Hi!");
-        bioMedicCLI(args);
-        
-        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
-        //queryAnsweringSimple(/*"C://Users/manos/Desktop/tmpDir/"*/"./collectionIndex/");
-        //queryAnsweringTopics("./collectionIndex/");
 
+        //System.out.println("Hi!");
+        //bioMedicCLI(args);
+
+        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "./collectionIndex/", "C://MedicalCollection/");
+        queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
+        
+        //queryAnsweringTopics("C://Users/manos/Desktop/simple_example/");
     }
 }

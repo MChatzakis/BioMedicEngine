@@ -302,9 +302,6 @@ public class BioMedicIndexer {
                 copyContentsToRAF(contentsV2, post2, newVoc, newPost);
                 lineV2 = voc2.readUTF();
             }
-
-            //lineV1 = voc1.readUTF();
-            //lineV2 = voc2.readUTF();
         }
 
         while (!lineV1.equals("#end")) {
@@ -344,7 +341,7 @@ public class BioMedicIndexer {
             mergePartialFiles(vocabFileNames, vocab1, vocab2, partialFilesDirectory, n_counter++);
         }
 
-        String vocabFilename = vocabFileNames.get(0); //unsafe but ok
+        String vocabFilename = vocabFileNames.get(0);
         String postFilename = vocabFilename.replace("vocab", "post");
 
         Files.deleteIfExists(new File(outputDirectoryPath + "vocabulary.txt").toPath());
@@ -353,8 +350,6 @@ public class BioMedicIndexer {
         Files.copy(new File(partialFilesDirectory + vocabFilename).toPath(), new File(outputDirectoryPath + "vocabulary.txt").toPath());
         Files.copy(new File(partialFilesDirectory + postFilename).toPath(), new File(outputDirectoryPath + "postings.txt").toPath());
 
-        //printVocabRaf(outputDirectoryPath + "vocabulary.txt");
-        //printPostingsRaf(outputDirectoryPath + "postings.txt");
     }
 
     public BioMedicIndexer() {
@@ -374,7 +369,7 @@ public class BioMedicIndexer {
         long startTime = System.nanoTime(), currentTime;
 
         String documentsFilepath = outputDirectoryPath + "documents.txt";
-        String partialFilesDirectory = "collectionIndex/partialIndexing/";
+        String partialFilesDirectory = outputDirectoryPath + "partialIndexing/";
 
         Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);//.subList(0, 1500);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();

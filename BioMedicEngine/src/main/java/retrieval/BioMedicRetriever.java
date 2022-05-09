@@ -266,7 +266,7 @@ public class BioMedicRetriever {
             long ptr = Long.parseLong(contents[2]);
 
             vocabulary.put(value, new SearchTerm(value, df, ptr));
-            System.out.println("Loaded term " + value + " with df " + df);
+            //System.out.println("Loaded term " + value + " with df " + df);
         }
         vocabularyRaf.seek(0);
         //System.out.println(vocabulary);
@@ -299,8 +299,8 @@ public class BioMedicRetriever {
 
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm);
-            String snippet = findSnippet(d, query);
-            results.add(new DocResult(d, score, snippet));
+            //String snippet = findSnippet(d, query);
+            results.add(new DocResult(d, score, ""));
         }
 
         Collections.sort(results, new Comparator<DocResult>() {
