@@ -22,6 +22,7 @@ import retrieval.BioMedicRetriever;
 
 /**
  * This class contains the command line interface of BioMedic indexer.
+ *
  * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 public class Main {
@@ -177,7 +178,6 @@ public class Main {
             String q = queries.get(i);
             String t = types.get(i);
             SearchResult results = bmr.findRelevantTopic(q, t);
-            //System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
 
             times.add(results.getResponseTime() / 1000000000.0);
         }
@@ -189,12 +189,12 @@ public class Main {
 
         Stemmer.Initialize();
 
-        bioMedicCLI(args);
-        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://Users/manos/Desktop/newCollection/", "C://MedicalCollection/");
+        //bioMedicCLI(args);
+        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer/", "C://MedicalCollection/");
+
         //queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
         //queryAnsweringSimple("C:/Users/manos/Desktop/newCollection/");
         //queryAnsweringTopics("C:/Users/manos/Desktop/newCollection/");
-        
         //experimentQueries("C://Users/manos/Desktop/newCollection/");
     }
 }

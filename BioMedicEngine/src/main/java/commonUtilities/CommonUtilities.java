@@ -5,6 +5,7 @@
  */
 package commonUtilities;
 
+import generalStructures.Doc;
 import gr.uoc.csd.hy463.NXMLFileReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -114,7 +115,7 @@ public class CommonUtilities {
     }
 
     public static double getIDF(int df, int N) {
-        return log2((N*1.0) / (df*1.0));
+        return log2((N * 1.0) / (df * 1.0));
     }
 
     public static int KnuthMorrisPrattSearch(char[] pattern, char[] text) {
@@ -292,6 +293,15 @@ public class CommonUtilities {
         }
 
         return res;
+    }
+
+    public static String readPMCIDofFile(Doc doc) throws IOException {
+        File example = new File(doc.getPath());
+        NXMLFileReader xmlFile = new NXMLFileReader(example);
+
+        String pmcid = xmlFile.getPMCID();
+
+        return pmcid;
     }
 
 }
