@@ -15,19 +15,24 @@ import lombok.Data;
 @Data
 public class BPREFData {
 
-    private ArrayList<Integer> relevantDocumentsPMCID;
-    private ArrayList<Integer> nonRelevantDocumentsPMCID;
+    private ArrayList<BPREFDoc> relevantDocuments;
+    private ArrayList<BPREFDoc> nonRelevantDocuments;
 
     public BPREFData() {
-        relevantDocumentsPMCID = new ArrayList<>();
-        nonRelevantDocumentsPMCID = new ArrayList<>();
+        relevantDocuments = new ArrayList<>();
+        nonRelevantDocuments = new ArrayList<>();
     }
 
-    public void addRelevantDocument(Integer pmcID) {
-        relevantDocumentsPMCID.add(pmcID);
+    public BPREFData(BPREFData d) {
+        relevantDocuments = new ArrayList<>(d.getRelevantDocuments());
+        nonRelevantDocuments = new ArrayList<>(d.getNonRelevantDocuments());
     }
 
-    public void addNonRelevantDocument(Integer pmcID) {
-        nonRelevantDocumentsPMCID.add(pmcID);
+    public void addRelevantDocument(BPREFDoc d) {
+        relevantDocuments.add(d);
+    }
+
+    public void addNonRelevantDocument(BPREFDoc d) {
+        nonRelevantDocuments.add(d);
     }
 }

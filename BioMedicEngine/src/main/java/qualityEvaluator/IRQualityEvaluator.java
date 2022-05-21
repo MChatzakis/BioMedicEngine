@@ -75,14 +75,60 @@ public class IRQualityEvaluator {
 
         BufferedReader br = new BufferedReader(new FileReader(givenResultsFilepath));
         String line;
-
+        int prevTopicNo = -1;
         while ((line = br.readLine()) != null) {
+            BPREFData currentTopicData = new BPREFData();
+
             String[] contents = line.split("\t");
             int topicNo = Integer.parseInt(contents[0]);
             int id = Integer.parseInt(contents[2]);
             int relScore = Integer.parseInt(contents[3]);
 
-            
+            if (prevTopicNo == -1) {
+                prevTopicNo = topicNo;
+            }
+
+            if (prevTopicNo != topicNo) {
+                topicData.put(topicNo, new BPREFData(currentTopicData));
+                currentTopicData = new BPREFData(); //reset
+                prevTopicNo = topicNo;
+            }
+
+            if (relScore > 0) {
+                currentTopicData.addRelevantDocument(new BPREFDoc(id, relScore));
+            } else {
+                currentTopicData.addNonRelevantDocument(new BPREFDoc(id, relScore));
+            }
+
         }
+
+        TreeMap<Integer, ArrayList<BPREFDoc>> retrievedData = new TreeMap<>();
+        br = new BufferedReader(new FileReader(systemResultsFilepath));
+
+        prevTopicNo = -1;
+        while ((line = br.readLine()) != null) {
+            ArrayList<BPREFDoc> results = new ArrayList<>();
+
+            String[] contents = line.split(" ");
+            int topicNo = Integer.parseInt(contents[0]);
+            int id = Integer.parseInt(contents[2]);
+            double score = Double.parseDouble(contents[4]);
+
+            if (prevTopicNo == -1) {
+                prevTopicNo = topicNo;
+            }
+
+            if (prevTopicNo != topicNo) {
+                retrievedData.put(topicNo, new ArrayList<>(results));
+                results = new ArrayList<>();
+                prevTopicNo = topicNo;
+            }
+
+            results.add(new BPREFDoc(id, score));
+        }
+
+        
+        
     }
+
 }
