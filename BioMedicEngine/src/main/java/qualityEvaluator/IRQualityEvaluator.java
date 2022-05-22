@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 import retrieval.BioMedicRetriever;
 
@@ -127,7 +128,7 @@ public class IRQualityEvaluator {
             results.add(new BPREFDoc(id, score));
         }
 
-        
+        for(Map.Entry<>)
         
     }
 
