@@ -190,9 +190,9 @@ public class Main {
         Stemmer.Initialize();
 
         //bioMedicCLI(args);
-        createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer/", "C://MedicalCollection/");
+        //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer/", "C://MedicalCollection/");
 
-        //queryAnsweringSimple("C://Users/manos/Desktop/simple_example/");
+        queryAnsweringSimple("C://BioMedicIndexer/");
         //queryAnsweringSimple("C:/Users/manos/Desktop/newCollection/");
         //queryAnsweringTopics("C:/Users/manos/Desktop/newCollection/");
         //experimentQueries("C://Users/manos/Desktop/newCollection/");

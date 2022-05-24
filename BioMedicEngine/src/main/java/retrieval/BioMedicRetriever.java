@@ -298,12 +298,14 @@ public class BioMedicRetriever {
         long startTime = System.nanoTime();
         ArrayList<DocResult> results = new ArrayList<>();
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
-
-        for (String s : queryTermsTF.keySet()) {
+        
+        //System.out.println("AA" + queryTermsTF.size());
+        
+        /*for (String s : queryTermsTF.keySet()) {
             if (!vocabulary.containsKey(s)) {
                 queryTermsTF.remove(s);
             }
-        }
+        }*/
 
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
 
@@ -334,11 +336,11 @@ public class BioMedicRetriever {
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()));
         
-        for (String s : queryTermsTF.keySet()) {
+        /*for (String s : queryTermsTF.keySet()) {
             if (!vocabulary.containsKey(s)) {
                 queryTermsTF.remove(s);
             }
-        }
+        }*/
         
         TreeMap<String, Double> topicTermsTF = queryProcessor.parseQueryFindTF(topic);
         ArrayList<Doc> topicDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(topicTermsTF.keySet()));

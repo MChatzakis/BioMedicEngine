@@ -12,6 +12,7 @@ import mitos.stemmer.Stemmer;
 
 /**
  * Query Processor contains the query parsing methods.
+ *
  * @author Manos Chatzakis
  */
 public class QueryProcessor {

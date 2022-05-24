@@ -23,6 +23,35 @@ import retrieval.BioMedicRetriever;
  */
 public class IRQualityEvaluator {
 
+    private double calculateBPREF(BPREFData data, ArrayList<BPREFDoc> retrievedDocuments) {
+        double score = 0.0;
+
+        ArrayList<BPREFDoc> judgedRelevantDocuments = data.getRelevantDocuments();
+        ArrayList<BPREFDoc> judgedNonRelevantDocuments = data.getRelevantDocuments();
+
+        int R = judgedRelevantDocuments.size();
+        int N = judgedNonRelevantDocuments.size();
+
+        double denom = Math.min(R, N) * 1.0;
+
+        int nonRelevantDocumentCount = 0;
+        for (int i = 0; i < retrievedDocuments.size(); i++) {
+            BPREFDoc retrievedDoc = retrievedDocuments.get(i);
+            double score2add = 0;
+
+            if (judgedRelevantDocuments.contains(retrievedDoc)) { //contains calls equals, which works from custom classes, from what I have checked..
+                score2add = 1 - (nonRelevantDocumentCount / denom);
+            } else if (judgedNonRelevantDocuments.contains(retrievedDoc)) {
+                nonRelevantDocumentCount++; //to eida apo ta slides
+            }
+
+            score += score2add;
+        }
+
+        score /= R; //last step
+        return score;
+    }
+
     public IRQualityEvaluator() {
 
     }
@@ -40,23 +69,23 @@ public class IRQualityEvaluator {
         String mappingsFile = basePath + "mappings.txt";
 
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
+        FileWriter fw = new FileWriter(resultsPath);
 
         for (int i = 0; i < queries.size(); i++) {
             String q = queries.get(i);
             String t = types.get(i);
             SearchResult results = bmr.findRelevantTopic(q, t);
 
-            FileWriter fw = new FileWriter(resultsPath);
-
             ArrayList<DocResult> documents = results.getRelevantDocuments();
 
+            System.out.println("Documents " + documents.size());
             if (documents.size() > 1000) {
                 documents = new ArrayList<>(documents.subList(0, 1000));
             }
 
             int rank = 1;
             for (DocResult d : documents) {
-                String topicNo = i + "";
+                String topicNo = (i + 1) + "";
                 String q0 = "0";
                 String pmcID = CommonUtilities.readPMCIDofFile(d.getDoc());
                 String docRank = (rank++) + "";
@@ -66,9 +95,8 @@ public class IRQualityEvaluator {
                 fw.write(topicNo + " " + q0 + " " + pmcID + " " + docRank + " " + score + " " + runName + "\n");
             }
 
-            fw.close();
         }
-
+        fw.close();
     }
 
     public void calculateBPREFinMemory(String systemResultsFilepath, String givenResultsFilepath, String reportFilepath) throws Exception {
@@ -77,10 +105,17 @@ public class IRQualityEvaluator {
         BufferedReader br = new BufferedReader(new FileReader(givenResultsFilepath));
         String line;
         int prevTopicNo = -1;
+        BPREFData currentTopicData = new BPREFData();
         while ((line = br.readLine()) != null) {
-            BPREFData currentTopicData = new BPREFData();
+            //System.out.println(line);
 
             String[] contents = line.split("\t");
+
+            //System.out.println(contents.length);
+            //for (String s : contents) {
+            //    System.out.print(s + " ");
+            //}
+            //System.out.println("");
             int topicNo = Integer.parseInt(contents[0]);
             int id = Integer.parseInt(contents[2]);
             int relScore = Integer.parseInt(contents[3]);
@@ -90,7 +125,10 @@ public class IRQualityEvaluator {
             }
 
             if (prevTopicNo != topicNo) {
-                topicData.put(topicNo, new BPREFData(currentTopicData));
+                //System.out.println("Topic Changed from " + prevTopicNo + " to " + topicNo);
+                //System.out.println(currentTopicData);
+                topicData.put(prevTopicNo, new BPREFData(currentTopicData));
+                //System.out.println(topicData);
                 currentTopicData = new BPREFData(); //reset
                 prevTopicNo = topicNo;
             }
@@ -103,12 +141,14 @@ public class IRQualityEvaluator {
 
         }
 
+        System.out.println(topicData);
+
         TreeMap<Integer, ArrayList<BPREFDoc>> retrievedData = new TreeMap<>();
         br = new BufferedReader(new FileReader(systemResultsFilepath));
 
         prevTopicNo = -1;
+        ArrayList<BPREFDoc> results = new ArrayList<>();
         while ((line = br.readLine()) != null) {
-            ArrayList<BPREFDoc> results = new ArrayList<>();
 
             String[] contents = line.split(" ");
             int topicNo = Integer.parseInt(contents[0]);
@@ -120,7 +160,7 @@ public class IRQualityEvaluator {
             }
 
             if (prevTopicNo != topicNo) {
-                retrievedData.put(topicNo, new ArrayList<>(results));
+                retrievedData.put(prevTopicNo, new ArrayList<>(results));
                 results = new ArrayList<>();
                 prevTopicNo = topicNo;
             }
@@ -128,8 +168,24 @@ public class IRQualityEvaluator {
             results.add(new BPREFDoc(id, score));
         }
 
-        for(Map.Entry<>)
+        System.out.println(retrievedData);
         
+        FileWriter fw = new FileWriter(reportFilepath);
+        fw.write("TopicNO\tBPREF\n");
+        for (Map.Entry<Integer, BPREFData> entry : topicData.entrySet()) {
+            int topicNumber = entry.getKey();
+            BPREFData dataOfTopic = entry.getValue();
+
+            ArrayList<BPREFDoc> documentsGivenForTopic = retrievedData.get(topicNumber);
+
+            double scoreBPREF = calculateBPREF(dataOfTopic, documentsGivenForTopic);
+
+            fw.write(topicNumber + "\t" + scoreBPREF + "\n");
+
+        }
+
+        fw.close();
+
     }
 
 }
