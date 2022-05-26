@@ -39,7 +39,7 @@ public class IRQualityEvaluator {
             BPREFDoc retrievedDoc = retrievedDocuments.get(i);
             double score2add = 0;
 
-            if (judgedRelevantDocuments.contains(retrievedDoc)) { //contains calls equals, which works from custom classes, from what I have checked..
+            if (judgedRelevantDocuments.contains(retrievedDoc)) {
                 score2add = 1 - (nonRelevantDocumentCount / denom);
             } else if (judgedNonRelevantDocuments.contains(retrievedDoc)) {
                 nonRelevantDocumentCount++; //to eida apo ta slides
@@ -74,6 +74,12 @@ public class IRQualityEvaluator {
         for (int i = 0; i < queries.size(); i++) {
             String q = queries.get(i);
             String t = types.get(i);
+            t = t.replace("type=", "");
+            t = t.substring(1, t.length() - 1);
+            //System.out.println("topic->" + t);
+            //if (t.equals("diagnosis")) {
+            //   System.out.println("eleos...");
+            //}
             SearchResult results = bmr.findRelevantTopic(q, t);
 
             ArrayList<DocResult> documents = results.getRelevantDocuments();
@@ -107,15 +113,9 @@ public class IRQualityEvaluator {
         int prevTopicNo = -1;
         BPREFData currentTopicData = new BPREFData();
         while ((line = br.readLine()) != null) {
-            //System.out.println(line);
 
             String[] contents = line.split("\t");
 
-            //System.out.println(contents.length);
-            //for (String s : contents) {
-            //    System.out.print(s + " ");
-            //}
-            //System.out.println("");
             int topicNo = Integer.parseInt(contents[0]);
             int id = Integer.parseInt(contents[2]);
             int relScore = Integer.parseInt(contents[3]);
@@ -140,8 +140,10 @@ public class IRQualityEvaluator {
             }
 
         }
+        topicData.put(prevTopicNo, new BPREFData(currentTopicData));
 
         System.out.println(topicData);
+        System.out.println("Topic Data Size = " + topicData.size());
 
         TreeMap<Integer, ArrayList<BPREFDoc>> retrievedData = new TreeMap<>();
         br = new BufferedReader(new FileReader(systemResultsFilepath));
@@ -168,8 +170,9 @@ public class IRQualityEvaluator {
             results.add(new BPREFDoc(id, score));
         }
 
+        retrievedData.put(prevTopicNo, new ArrayList<>(results));
         System.out.println(retrievedData);
-        
+
         FileWriter fw = new FileWriter(reportFilepath);
         fw.write("TopicNO\tBPREF\n");
         for (Map.Entry<Integer, BPREFData> entry : topicData.entrySet()) {
