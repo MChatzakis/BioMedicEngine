@@ -303,7 +303,7 @@ public class BioMedicIndexer {
                 mergeContentsAndCopyToRAF(contentsV1, contentsV2, post1, post2, newVoc, newPost);
                 lineV1 = voc1.readUTF();
                 lineV2 = voc2.readUTF();
-            } else if (comp < 0) { /////!!!!
+            } else if (comp < 0) {
                 copyContentsToRAF(contentsV1, post1, newVoc, newPost);
                 lineV1 = voc1.readUTF();
             } else {

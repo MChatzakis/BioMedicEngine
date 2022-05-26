@@ -185,6 +185,8 @@ public class Main {
         for (int i = 0; i < queries.size(); i++) {
             String q = queries.get(i);
             String t = types.get(i);
+            t = t.replace("type=", "");
+            t = t.substring(1, t.length() - 1);
             SearchResult results = bmr.findRelevantTopic(q, t);
 
             times.add(results.getResponseTime() / 1000000000.0);
@@ -200,8 +202,7 @@ public class Main {
         //bioMedicCLI(args);
         //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer_2/", "C://MedicalCollection/");
         //queryAnsweringSimple("C://BioMedicIndexer_2/", "./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
-        //queryAnsweringSimple("C:/Users/manos/Desktop/newCollection/");
-        queryAnsweringTopics("C://BioMedicIndexer_2/");
-        //experimentQueries("C://Users/manos/Desktop/newCollection/");
+        //queryAnsweringTopics("C://BioMedicIndexer_2/");
+        experimentQueries("C://BioMedicIndexer_2/");
     }
 }
