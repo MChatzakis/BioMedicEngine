@@ -61,7 +61,7 @@ public class Main {
                 }
                 break;
             case "retriever":
-                if (cmd.hasOption("collection")) {
+                if (cmd.hasOption("collection") && cmd.hasOption("gr") && cmd.hasOption("en")) {
                     String collectionPath = cmd.getOptionValue("collection");
                     String gr = cmd.getOptionValue("gr");
                     String en = cmd.getOptionValue("en");
@@ -73,11 +73,11 @@ public class Main {
 
                 break;
             case "topicRetriever":
-                if (cmd.hasOption("collection")) {
+                if (cmd.hasOption("collection") && cmd.hasOption("gr") && cmd.hasOption("en")) {
                     String collectionPath = cmd.getOptionValue("collection");
                     String gr = cmd.getOptionValue("gr");
                     String en = cmd.getOptionValue("en");
-                    queryAnsweringTopics(collectionPath);
+                    queryAnsweringTopics(collectionPath, en, gr);
                 } else {
                     System.out.println("BioMedic Engine requires a directory to load the index.");
                     System.exit(-1);
@@ -114,7 +114,6 @@ public class Main {
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
         bmr.addStopWords(englishStopWordsFile);
         bmr.addStopWords(greekStopWordsFile);
-        //bmr.printReportLogDEBUG("./");
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -130,13 +129,13 @@ public class Main {
                 System.out.println(dr.toString());
             }
 
-            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
+            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0 + "seconds");
             System.out.println("Total documents retrieved: " + results.getRelevantDocuments().size());
         }
 
     }
 
-    public static void queryAnsweringTopics(String basePath) throws IOException {
+    public static void queryAnsweringTopics(String basePath, String englishStopWordsFile, String greekStopWordsFile) throws IOException {
         String vocabularyFile = basePath + "vocabulary.txt";
         String documentsFile = basePath + "documents.txt";
         String postingFile = basePath + "postings.txt";
@@ -144,6 +143,8 @@ public class Main {
         String mappingsFile = basePath + "mappings.txt";
 
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
+        bmr.addStopWords(englishStopWordsFile);
+        bmr.addStopWords(greekStopWordsFile);
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -161,7 +162,8 @@ public class Main {
                 System.out.println(dr.toString());
             }
 
-            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0);
+            System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0 + " seconds");
+            System.out.println("Total documents retrieved: " + results.getRelevantDocuments().size());
         }
     }
 
@@ -198,11 +200,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Stemmer.Initialize();
+        bioMedicCLI(args);
 
-        //bioMedicCLI(args);
         //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer_2/", "C://MedicalCollection/");
         //queryAnsweringSimple("C://BioMedicIndexer_2/", "./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
-        //queryAnsweringTopics("C://BioMedicIndexer_2/");
-        experimentQueries("C://BioMedicIndexer_2/");
+        //queryAnsweringTopics("C://BioMedicIndexer_2/","./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
+        //experimentQueries("C://BioMedicIndexer_2/");
     }
 }

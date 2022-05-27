@@ -376,8 +376,7 @@ public class BioMedicRetriever {
         TreeMap<String, Double> queryTermsTF = queryProcessor.parseQueryFindTF(query);
 
         //System.out.println("Query Terms = " + queryTermsTF.size());
-        System.out.println(queryTermsTF);
-
+        //System.out.println(queryTermsTF);
         TreeMap<String, HashMap<Doc, Double>> termTFinDocs = new TreeMap<>();
         ArrayList<Doc> relevantDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(queryTermsTF.keySet()), termTFinDocs);
         //System.out.println("Total relevant documents " + relevantDocuments.size());
@@ -416,7 +415,7 @@ public class BioMedicRetriever {
 
         double queryNorm = findQueryNorm(queryTermsTF);
 
-        System.out.println("ResSize=" + relevantDocuments.size() + " TopSize=" + topicDocuments.size());
+        //System.out.println("ResSize=" + relevantDocuments.size() + " TopSize=" + topicDocuments.size());
         relevantDocuments.retainAll(topicDocuments);
 
         for (Doc d : relevantDocuments) {
