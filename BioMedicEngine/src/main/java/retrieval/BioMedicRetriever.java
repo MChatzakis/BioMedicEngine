@@ -401,6 +401,10 @@ public class BioMedicRetriever {
     }
 
     public SearchResult findRelevantTopic(String query, String topic) throws IOException {
+
+        double topicWeight = 0.5;
+        double normalWeight = 1 - topicWeight;
+
         long startTime = System.nanoTime();
         TreeMap<String, HashMap<Doc, Double>> termTFinDocs = new TreeMap<>();
         TreeMap<String, HashMap<Doc, Double>> termTFinDocsTopic = new TreeMap<>();
@@ -414,14 +418,18 @@ public class BioMedicRetriever {
         ArrayList<Doc> topicDocuments = findRelevantDocumentsOfQuery(new ArrayList<>(topicTermsTF.keySet()), termTFinDocsTopic);
 
         double queryNorm = findQueryNorm(queryTermsTF);
+        double topicNorm = findQueryNorm(topicTermsTF);
 
         //System.out.println("ResSize=" + relevantDocuments.size() + " TopSize=" + topicDocuments.size());
         relevantDocuments.retainAll(topicDocuments);
-
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm, termTFinDocs);
+            double topicScore = calculateScore(d, topicTermsTF, topicNorm, termTFinDocsTopic);
+
+            double finalScore = normalWeight * score + topicWeight * topicScore;
+
             String snippet = "";
-            rawResults.add(new DocResult(d, score, snippet));
+            rawResults.add(new DocResult(d, finalScore, snippet));
         }
 
         Collections.sort(rawResults, new Comparator<DocResult>() {

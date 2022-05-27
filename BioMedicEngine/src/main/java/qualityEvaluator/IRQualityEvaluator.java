@@ -80,7 +80,7 @@ public class IRQualityEvaluator {
             //if (t.equals("diagnosis")) {
             //   System.out.println("eleos...");
             //}
-            SearchResult results = bmr.findRelevantTopic(q, t);
+            SearchResult results =bmr.findRelevantTopic(q, t);
 
             ArrayList<DocResult> documents = results.getRelevantDocuments();
 

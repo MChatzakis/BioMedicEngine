@@ -18,12 +18,12 @@ public class Evaluation {
         IRQualityEvaluator iqe = new IRQualityEvaluator();
 
         String basePath = "C://BioMedicIndexer_2/";
-        String resultsPath = "./corpus/results-topic.txt";
-        String versionRunName = "topic-biomedic-engine";
+        String resultsPath = "./qualityEvaluation/results-topic-weighting-50-50-set.txt";
+        String versionRunName = "topic-biomedic-engine-weighting-50-50-set";
         iqe.createResultFileOfBioMedicIndexer(basePath, resultsPath, versionRunName);
 
         String givenResultsFilepath = "./corpus/qrels.txt";
-        String reportFilepath = "./corpus/evaluation-results-topic.txt";
+        String reportFilepath = "./qualityEvaluation/evaluation-results-topic-weighting-50-50-set.txt";
         iqe.calculateBPREFinMemory(resultsPath, givenResultsFilepath, reportFilepath);
     }
 }
