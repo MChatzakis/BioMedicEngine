@@ -47,8 +47,7 @@ public class Main {
 
             switch (mode) {
             case "indexer":
-                if (cmd.hasOption("input") && cmd.hasOption("output") && cmd.hasOption("gr")
-                        && cmd.hasOption("en")) {
+                if (cmd.hasOption("input") && cmd.hasOption("output") && cmd.hasOption("gr") && cmd.hasOption("en")) {
                     String input = cmd.getOptionValue("input");
                     String output = cmd.getOptionValue("output");
                     String gr = cmd.getOptionValue("gr");
@@ -65,6 +64,7 @@ public class Main {
                     String collectionPath = cmd.getOptionValue("collection");
                     String gr = cmd.getOptionValue("gr");
                     String en = cmd.getOptionValue("en");
+
                     queryAnsweringSimple(collectionPath, en, gr);
                 } else {
                     System.out.println("BioMedic Engine requires a directory to load the index.");
@@ -77,6 +77,7 @@ public class Main {
                     String collectionPath = cmd.getOptionValue("collection");
                     String gr = cmd.getOptionValue("gr");
                     String en = cmd.getOptionValue("en");
+
                     queryAnsweringTopics(collectionPath, en, gr);
                 } else {
                     System.out.println("BioMedic Engine requires a directory to load the index.");
@@ -157,9 +158,10 @@ public class Main {
             System.out.println(">>> Type a medical type (diagnosis, test, treatment)");
             String type = sc.nextLine();
 
-            SearchResult results = bmr.findRelevantTopic(inputQuery, type, 0, true);
+            SearchResult results = bmr.findRelevantTopic(inputQuery, type, 0.1, false);
+            int rank = 0;
             for (DocResult dr : results.getRelevantDocuments()) {
-                System.out.println(dr.toString());
+                System.out.println((++rank) + ". " + dr.toString());
             }
 
             System.out.println("Response Time: " + results.getResponseTime() / 1000000000.0 + " seconds");
