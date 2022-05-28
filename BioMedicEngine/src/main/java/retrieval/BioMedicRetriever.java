@@ -374,7 +374,6 @@ public class BioMedicRetriever {
 
     public SearchResult findRelevantTopic(String query, String topic, double topicWeight, boolean intersection) throws IOException {
 
-        //double topicWeight = 0.7;
         double normalWeight = 1 - topicWeight;
 
         long startTime = System.nanoTime();
@@ -393,7 +392,6 @@ public class BioMedicRetriever {
         double topicNorm = findQueryNorm(topicTermsTF);
 
         //relevantDocuments = new ArrayList<>(relevantDocuments.stream().distinct().collect(Collectors.toList()));
-
         //System.out.println("ResSize=" + relevantDocuments.size() + " TopSize=" + topicDocuments.size());
         //System.out.println(topicTermsTF);
         //System.out.println(termTFinDocsTopic);
@@ -420,7 +418,6 @@ public class BioMedicRetriever {
         long endTime = System.nanoTime();
         long responseTime = endTime - startTime;
         return new SearchResult(rawResults, responseTime);
-
     }
 
 }
