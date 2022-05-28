@@ -6,6 +6,7 @@
 package qualityEvaluator;
 
 import commonUtilities.CommonUtilities;
+import generalStructures.Doc;
 import generalStructures.DocResult;
 import generalStructures.SearchResult;
 import java.io.BufferedReader;
@@ -13,6 +14,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import retrieval.BioMedicRetriever;
@@ -32,15 +34,18 @@ public class IRQualityEvaluator {
         int R = judgedRelevantDocuments.size();
         int N = judgedNonRelevantDocuments.size();
 
-        double denom = Math.min(R, N) * 1.0;
+        //double denom = Math.min(R, N) * 1.0;
+        double denom = R * 1.0;
 
         int nonRelevantDocumentCount = 0;
+        int relevantDocumentCount = 0;
         for (int i = 0; i < retrievedDocuments.size(); i++) {
             BPREFDoc retrievedDoc = retrievedDocuments.get(i);
             double score2add = 0;
 
             if (judgedRelevantDocuments.contains(retrievedDoc)) {
                 score2add = 1 - (nonRelevantDocumentCount / denom);
+                relevantDocumentCount++;
             } else if (judgedNonRelevantDocuments.contains(retrievedDoc)) {
                 nonRelevantDocumentCount++; //to eida apo ta slides
             }
@@ -48,7 +53,9 @@ public class IRQualityEvaluator {
             score += score2add;
         }
 
-        score /= R; //last step
+        System.out.println("Relevant Docs Retrieved=" + relevantDocumentCount + " while qrels rel=" + R);
+        score = score / (1.0 * R); //last step
+
         return score;
     }
 
@@ -56,7 +63,7 @@ public class IRQualityEvaluator {
 
     }
 
-    public void createResultFileOfBioMedicIndexer(String basePath, String resultsPath, String versionRunName) throws IOException {
+    public void createResultFileOfBioMedicIndexer(String basePath, String resultsPath, String versionRunName, double topicWeight, boolean inter) throws IOException {
         ArrayList<String> queries = CommonUtilities.readXML("corpus/topics.xml", "topic", "summary");
         ArrayList<String> types = CommonUtilities.readXMLattr("corpus/topics.xml", "topic", "type");
 
@@ -80,10 +87,10 @@ public class IRQualityEvaluator {
             //if (t.equals("diagnosis")) {
             //   System.out.println("eleos...");
             //}
-            SearchResult results =bmr.findRelevantTopic(q, t);
+            SearchResult results = bmr.findRelevantTopic(q, t, topicWeight, inter);
 
             ArrayList<DocResult> documents = results.getRelevantDocuments();
-
+            HashMap<String, Doc> docIDS = new HashMap<>();
             System.out.println("Documents " + documents.size());
             if (documents.size() > 1000) {
                 documents = new ArrayList<>(documents.subList(0, 1000));
@@ -97,6 +104,22 @@ public class IRQualityEvaluator {
                 String docRank = (rank++) + "";
                 String score = d.getScore() + "";
                 String runName = versionRunName;
+
+                String id = d.getDoc().getId() + "";
+
+                if (docIDS.containsKey(pmcID)) {
+                    //System.out.println("GAMWTO!");
+                    // System.out.println(id);
+                    // System.out.println(docIDS.indexOf(pmcID));
+                    // System.out.println(pmcID);
+                    //System.out.println(docIDS.get(pmcID).getPath());
+                    //System.out.println(d.getDoc().getPath());
+                    //System.out.println(docIDS.get(pmcID).getId());
+                    //System.out.println(d.getDoc().getId());
+                    continue;
+                } else {
+                    docIDS.put(pmcID, d.getDoc());
+                }
 
                 fw.write(topicNo + " " + q0 + " " + pmcID + " " + docRank + " " + score + " " + runName + "\n");
             }

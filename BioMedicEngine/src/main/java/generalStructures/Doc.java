@@ -13,21 +13,21 @@ import lombok.Data;
  */
 @Data
 public class Doc {
-
+    
     private int id;
     private long norm;
     private String path;
     private long docFilePointer;
-
+    
     public Doc(int id, String path) {
         this.id = id;
         this.path = path;
-
+        
         norm = 0;
         docFilePointer = 0;
         docFilePointer = 0;
     }
-
+    
     public String toString() {
         return "{" + id + "," + path + "}";
     }
@@ -49,6 +49,10 @@ public class Doc {
         Doc c = (Doc) o;
 
         // Compare the data members and return accordingly
-        return Double.compare(id, c.id) == 0;
+        return Double.compare(id, c.id) == 0 && c.path.equals(path);
+    }
+    
+    public int hashCode() {
+        return this.id;
     }
 }

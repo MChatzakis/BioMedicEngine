@@ -8,10 +8,11 @@ GR_STOPWORDS=../stopwords/stopwordsGr.txt
 EN_STOPWORDS=../stopwords/stopwordsEn.txt
 
 #Indexer
-java -jar $EXEJAR_NAME -mode indexer -input $COLLECTION_INPUT_DIRECTORY -output $COLLECTION_OUTPUT_DIRECTORY -gr $GR_STOPWORDS -en $EN_STOPWORDS
+#mkdir 
+#java -jar $EXEJAR_NAME -mode indexer -input $COLLECTION_INPUT_DIRECTORY -output $COLLECTION_OUTPUT_DIRECTORY -gr $GR_STOPWORDS -en $EN_STOPWORDS
 
 #Retriever
 #java -jar $EXEJAR_NAME -mode retriever -collection $BIG_COLLECTION_OUTPUT_DIRECTORY -gr $GR_STOPWORDS -en $EN_STOPWORDS
 
 #Topic Retriever
-#java -jar $EXEJAR_NAME -mode topicRetriever -collection $BIG_COLLECTION_OUTPUT_DIRECTORY -gr $GR_STOPWORDS -en $EN_STOPWORDS
+java -jar $EXEJAR_NAME -mode topicRetriever -collection $BIG_COLLECTION_OUTPUT_DIRECTORY -gr $GR_STOPWORDS -en $EN_STOPWORDS

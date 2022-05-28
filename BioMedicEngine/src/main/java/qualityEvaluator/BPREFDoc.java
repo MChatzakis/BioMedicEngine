@@ -49,4 +49,7 @@ public class BPREFDoc {
         return Double.compare(id, c.id) == 0;
     }
 
+    public int hashCode() {
+        return this.id;
+    }
 }

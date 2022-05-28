@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import mitos.stemmer.Stemmer;
 
 /**
@@ -132,9 +133,11 @@ public class BioMedicRetriever {
                 double dTF = 0;//getDocumentTFOfTerm(d, termVal);
                 //System.out.println("DTF = " + dTF);
                 if (termTFinDocs.containsKey(termVal)) {
+                    //System.out.println("Contains key " + termVal);
                     HashMap<Doc, Double> map = termTFinDocs.get(termVal);
                     if (map.containsKey(d)) {
                         dTF = map.get(d);
+                        //System.out.println("TF of Key " + termVal + " is " + dTF);
                     }
                 }
 
@@ -151,37 +154,6 @@ public class BioMedicRetriever {
         String l = normsRaf.readUTF(); //no good but I guess its fine?
 
         double norm = Double.parseDouble((l.split(" "))[1]);
-        return dotProduct / (norm * queryNorm);
-    }
-
-    private double calculateScore(Doc d, TreeMap<String, Double> queryTermsTF, double queryNorm, String topic) throws IOException {
-        //! Idea: Give higher score to the docs that contain the word "topic"
-
-        //1. traverse treemap and find the dot_p of every matching terms:
-        double dotProduct = 0;
-        for (Map.Entry<String, Double> entry : queryTermsTF.entrySet()) {
-            double qTF = entry.getValue();
-            String termVal = entry.getKey();
-            if (vocabulary.containsKey(termVal)) {
-                SearchTerm c = vocabulary.get(termVal);
-                double iDF = CommonUtilities.getIDF(c.getDf(), totalDocuments);
-
-                double dTF = getDocumentTFOfTerm(d, termVal);
-
-                double doc_i = dTF * iDF;
-                double query_i = qTF * iDF;
-
-                dotProduct += (doc_i * query_i);
-            }
-        }
-
-        //2. get norm of doc d
-        long pos = docNormsPairs.get(d.getId());
-        normsRaf.seek(pos);
-        String l = normsRaf.readUTF(); //no good but I guess its fine?
-
-        double norm = Double.parseDouble((l.split(" "))[1]);
-
         return dotProduct / (norm * queryNorm);
     }
 
@@ -400,9 +372,9 @@ public class BioMedicRetriever {
 
     }
 
-    public SearchResult findRelevantTopic(String query, String topic) throws IOException {
+    public SearchResult findRelevantTopic(String query, String topic, double topicWeight, boolean intersection) throws IOException {
 
-        double topicWeight = 0.5;
+        //double topicWeight = 0.7;
         double normalWeight = 1 - topicWeight;
 
         long startTime = System.nanoTime();
@@ -420,12 +392,19 @@ public class BioMedicRetriever {
         double queryNorm = findQueryNorm(queryTermsTF);
         double topicNorm = findQueryNorm(topicTermsTF);
 
+        //relevantDocuments = new ArrayList<>(relevantDocuments.stream().distinct().collect(Collectors.toList()));
+
         //System.out.println("ResSize=" + relevantDocuments.size() + " TopSize=" + topicDocuments.size());
-        relevantDocuments.retainAll(topicDocuments);
+        //System.out.println(topicTermsTF);
+        //System.out.println(termTFinDocsTopic);
+        if (intersection) {
+            relevantDocuments.retainAll(topicDocuments);
+        }
+        //System.out.println(relevantDocuments.size());
         for (Doc d : relevantDocuments) {
             double score = calculateScore(d, queryTermsTF, queryNorm, termTFinDocs);
             double topicScore = calculateScore(d, topicTermsTF, topicNorm, termTFinDocsTopic);
-
+            //System.out.println(topicScore);
             double finalScore = normalWeight * score + topicWeight * topicScore;
 
             String snippet = "";

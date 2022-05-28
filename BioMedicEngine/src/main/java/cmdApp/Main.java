@@ -157,7 +157,7 @@ public class Main {
             System.out.println(">>> Type a medical type (diagnosis, test, treatment)");
             String type = sc.nextLine();
 
-            SearchResult results = bmr.findRelevantTopic(inputQuery, type);
+            SearchResult results = bmr.findRelevantTopic(inputQuery, type, 0, true);
             for (DocResult dr : results.getRelevantDocuments()) {
                 System.out.println(dr.toString());
             }
@@ -189,7 +189,7 @@ public class Main {
             String t = types.get(i);
             t = t.replace("type=", "");
             t = t.substring(1, t.length() - 1);
-            SearchResult results = bmr.findRelevantTopic(q, t);
+            SearchResult results = bmr.findRelevantTopic(q, t, 0, true);
 
             times.add(results.getResponseTime() / 1000000000.0);
         }
