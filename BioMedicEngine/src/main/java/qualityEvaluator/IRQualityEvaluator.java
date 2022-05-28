@@ -20,8 +20,10 @@ import java.util.TreeMap;
 import retrieval.BioMedicRetriever;
 
 /**
+ * This class contains methods that save the results of BioMedicIndexer and
+ * evaluate them using qrels, by calculating BPREF.
  *
- * @author manos
+ * @author Manos Chatzakis
  */
 public class IRQualityEvaluator {
 
@@ -34,7 +36,7 @@ public class IRQualityEvaluator {
         int R = judgedRelevantDocuments.size();
         int N = judgedNonRelevantDocuments.size();
 
-        //double denom = Math.min(R, N) * 1.0;
+        //double denom = Math.min(R, N) * 1.0; //both versions are okay.
         double denom = R * 1.0;
 
         int nonRelevantDocumentCount = 0;
