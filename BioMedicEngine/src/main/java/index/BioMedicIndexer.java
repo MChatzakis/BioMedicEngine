@@ -28,7 +28,7 @@ import vectorModel.VectorModel;
 
 /**
  * BioMedicIndexer class contains methods to index a directory.
- * 
+ *
  * @author Manos Chatzakis (chatzakis@ics.forth.gr)
  */
 @Data
@@ -180,7 +180,6 @@ public class BioMedicIndexer {
         filenames.add(filenameV);
 
         vocabulary.clear();
-        //docPointerPairs.clear();
 
         System.gc(); //den perimena pote oti tha to kanw auto...
     }
@@ -379,7 +378,7 @@ public class BioMedicIndexer {
         String documentsFilepath = outputDirectoryPath + "documents.txt";
         String partialFilesDirectory = outputDirectoryPath + "partialIndexing/";
 
-        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);//.subList(0, 1500);
+        Collection<String> filepaths = CommonUtilities.getFilesOfDirectory(directoryBasePath);
         ArrayList<String> partialVocabsFilenames = new ArrayList<>();
 
         int documentCounter = 0;
@@ -500,6 +499,5 @@ public class BioMedicIndexer {
         }
 
         calculateTFofTermsOfDocument(doc.getId());
-
     }
 }

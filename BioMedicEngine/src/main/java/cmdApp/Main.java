@@ -169,7 +169,7 @@ public class Main {
         }
     }
 
-    public static void experimentQueries(String basePath) throws IOException {
+    public static void experimentQueries(String basePath, String englishStopWordsFile, String greekStopWordsFile) throws IOException {
         ArrayList<String> queries = CommonUtilities.readXML("corpus/topics.xml", "topic", "summary");
         ArrayList<String> types = CommonUtilities.readXMLattr("corpus/topics.xml", "topic", "type");
 
@@ -185,7 +185,9 @@ public class Main {
         ArrayList<Double> times = new ArrayList<>();
 
         BioMedicRetriever bmr = new BioMedicRetriever(documentsFile, postingFile, vocabularyFile, normsFile, mappingsFile);
-
+        bmr.addStopWords(englishStopWordsFile);
+        bmr.addStopWords(greekStopWordsFile);
+        
         for (int i = 0; i < queries.size(); i++) {
             String q = queries.get(i);
             String t = types.get(i);
@@ -207,6 +209,6 @@ public class Main {
         //createIndex("./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt", "C://BioMedicIndexer_2/", "C://MedicalCollection/");
         //queryAnsweringSimple("C://BioMedicIndexer_2/", "./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
         //queryAnsweringTopics("C://BioMedicIndexer_2/","./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
-        //experimentQueries("C://BioMedicIndexer_2/");
+        //experimentQueries("C://BioMedicIndexer_2/", "./stopwords/stopwordsEn.txt", "./stopwords/stopwordsGr.txt");
     }
 }
