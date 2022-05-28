@@ -53,7 +53,7 @@ public class IRQualityEvaluator {
             score += score2add;
         }
 
-        System.out.println("Relevant Docs Retrieved=" + relevantDocumentCount + " while qrels rel=" + R);
+        //System.out.println("Relevant Docs Retrieved=" + relevantDocumentCount + " while qrels rel=" + R);
         score = score / (1.0 * R); //last step
 
         return score;
@@ -91,7 +91,7 @@ public class IRQualityEvaluator {
 
             ArrayList<DocResult> documents = results.getRelevantDocuments();
             HashMap<String, Doc> docIDS = new HashMap<>();
-            System.out.println("Documents " + documents.size());
+            //System.out.println("Documents " + documents.size());
             if (documents.size() > 1000) {
                 documents = new ArrayList<>(documents.subList(0, 1000));
             }
@@ -104,11 +104,8 @@ public class IRQualityEvaluator {
                 String docRank = (rank++) + "";
                 String score = d.getScore() + "";
                 String runName = versionRunName;
-
                 String id = d.getDoc().getId() + "";
-
                 if (docIDS.containsKey(pmcID)) {
-                    //System.out.println("GAMWTO!");
                     // System.out.println(id);
                     // System.out.println(docIDS.indexOf(pmcID));
                     // System.out.println(pmcID);
