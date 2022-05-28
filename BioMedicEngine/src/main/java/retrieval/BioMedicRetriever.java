@@ -307,14 +307,13 @@ public class BioMedicRetriever {
             long ptr = Long.parseLong(contents[2]);
 
             if (vocabulary.containsKey(value)) {
-                System.out.println("GAMW");
+                System.out.println("Something is wrong in the vocab file. Found duplicate.");
                 System.out.println(value);
                 System.exit(-1);
             }
 
             vocabulary.put(value, new SearchTerm(value, df, ptr));
             if (counter < 100) {
-
                 //System.out.println("Loaded term " + value + " with df " + df);
             }
             counter++;
